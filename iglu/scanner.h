@@ -19,13 +19,15 @@ private:
 	char peek();
 	char peekNext();
 	char advance();
+	char isAlpha();
 
 	// helpers
 
 	// token specifics
+	void skipWhiteSpace();
 	Token makeToken(TokenType);
 	Token errorToken(const string&);
-	void skipWhiteSpace();
+	Token stringToken();
 public:
 	Scanner(const string&);
 	bool isAtEnd();

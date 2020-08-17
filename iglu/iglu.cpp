@@ -29,7 +29,7 @@ static void repl() {
 	string line;
 	while (true) {
 		cout << "~> ";
-		cin >> line;
+		getline(cin, line);
 		if (cin.fail()) {
 			cout << endl;
 			break;

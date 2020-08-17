@@ -35,6 +35,7 @@ Token Scanner::scanToken() {
 	case ',': return makeToken(TokenType::COMMA);
 	case '.': return makeToken(TokenType::DOT);
 	case ';': return makeToken(TokenType::SEMICOLON);
+	case '"': return stringToken();
 
 	case '=':
 		if(!isAtEnd() && peek() == '=') return makeToken(TokenType::EQUAL_EQUAL);
@@ -78,6 +79,30 @@ char Scanner::advance() {
 #pragma endregion
 
 #pragma region TokenSpecifics
+
+void Scanner::skipWhiteSpace() {
+	while (true) {
+		char c = peek();
+		switch (c)
+		{
+		case ' ':
+		case '\r':
+		case '\t':
+			advance();
+			break;
+		case '\n':
+			line++;
+			break;
+		case '/':
+			if (peekNext() == '//') {
+				while (peekNext() != '/' && !isAtEnd()) advance();
+			}
+		default:
+			return;
+		}
+	}
+}
+
 Token Scanner::makeToken(TokenType type) {
 	Token token;
 	token.type = type;
@@ -97,26 +122,16 @@ Token Scanner::errorToken(const string& message) {
 	return token;
 }
 
-void Scanner::skipWhiteSpace() {
-	while (true) {
-		char c = peek();
-		switch (c){
-			case ' ':
-			case '\r':
-			case '\t':
-				advance();
-				break;
-			case '\n':
-				line++;
-				break;
-			case '/':
-				if (peekNext() == '//') {
-					while (peekNext() != '/' && !isAtEnd()) advance();
-				}
-			default:
-				return;
-		}
+Token Scanner::stringToken() {
+	advance();
+	while (!isAtEnd() && peek() != '"') {
+		advance();
 	}
+	if (isAtEnd()) return errorToken("Unterminated string");
+	advance();
+
+	return makeToken(TokenType::STRING);
 }
+
 #pragma endregion
 
