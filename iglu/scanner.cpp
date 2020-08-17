@@ -22,6 +22,7 @@ Token Scanner::scanToken() {
 	char c = advance();
 
 	if(isDigit(c)) return numberToken();
+	if(isAlpha(c)) return identifierToken();
 
 	switch (c)
 	{
@@ -79,6 +80,29 @@ char Scanner::advance() {
 
 bool Scanner::isDigit(char c) {
 	return c <= '9' && c >= '0';
+}
+
+bool Scanner::isAlpha(char c) {
+	return (c <= 'z' && c >= 'a') || (c <= 'Z' && c >='A') || c == '_';
+}
+
+bool Scanner::isAlphaNumeric(char c) {
+	return isAlpha(c) || isDigit(c);
+}
+
+bool Scanner::checkKeyword(int s, int l, const char* expected) {
+	return current-start==s+l &&
+		memcmp(start+s, expected, l * sizeof(char)) == 0;
+}
+
+TokenType Scanner::identifierType() {
+	char c = *start;
+	switch (c)
+	{
+	case 'a':
+		if(checkKeyword(1,2,"nd")) return TokenType::AND;
+	}
+	return TokenType::IDENTIFIER;
 }
 
 #pragma endregion
@@ -148,6 +172,12 @@ Token Scanner::numberToken() {
 	}
 
 	return makeToken(TokenType::NUMBER);
+}
+
+Token Scanner::identifierToken() {
+	while(isAlphaNumeric(peek())) advance();
+	
+	return makeToken(identifierType());
 }
 
 #pragma endregion

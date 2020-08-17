@@ -18,10 +18,13 @@ private:
 	char peek();
 	char peekNext();
 	char advance();
-	bool isDigit(char);
-	bool isAlpha(char);
 
 	// helpers
+	bool isDigit(char);
+	bool isAlpha(char);
+	bool isAlphaNumeric(char);
+	bool checkKeyword(int, int, const char*);
+	TokenType identifierType();
 
 	// token specifics
 	void skipWhiteSpace();
@@ -29,6 +32,7 @@ private:
 	Token errorToken(const string&);
 	Token stringToken();
 	Token numberToken();
+	Token identifierToken();
 public:
 	Scanner(const string& source);
 	bool isAtEnd();
