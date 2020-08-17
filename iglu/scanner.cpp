@@ -1,16 +1,15 @@
-#include "Scanner.h"
+#include "scanner.h"
 
 #pragma region API
 
 Scanner::Scanner(const string& source) {
-	this->start = source.begin();
-	this->current = source.begin();
-	this->end = source.end();
+	this->start = &source[0];
+	this->current = &source[0];
 	this->line = 0;
 }
 
 bool Scanner::isAtEnd() {
-	return current == end;
+	return *current == '\0';
 }
 
 Token Scanner::scanToken() {
@@ -21,6 +20,8 @@ Token Scanner::scanToken() {
 	if(isAtEnd()) return makeToken(TokenType::FILE_END);
 
 	char c = advance();
+
+	if(isDigit(c)) return numberToken();
 
 	switch (c)
 	{
@@ -38,17 +39,17 @@ Token Scanner::scanToken() {
 	case '"': return stringToken();
 
 	case '=':
-		if(!isAtEnd() && peek() == '=') return makeToken(TokenType::EQUAL_EQUAL);
-		if(!isAtEnd() && peek() == '>') return makeToken(TokenType::ARROW);
+		if(peek() == '=') return makeToken(TokenType::EQUAL_EQUAL);
+		if(peek() == '>') return makeToken(TokenType::ARROW);
 		return makeToken(TokenType::EQUAL);
 	case '!':
-		if(!isAtEnd() && peek() == '=') return makeToken(TokenType::BANG_EQUAL);
+		if(peek() == '=') return makeToken(TokenType::BANG_EQUAL);
 		return makeToken(TokenType::BANG);
 	case '>':
-		if(!isAtEnd() && peek() == '=') return makeToken(TokenType::GREATER_EQUAL);
+		if(peek() == '=') return makeToken(TokenType::GREATER_EQUAL);
 		return makeToken(TokenType::GREATER);
 	case '<':
-		if(!isAtEnd() && peek() == '=') return makeToken(TokenType::LESS_EQUAL);
+		if(peek() == '=') return makeToken(TokenType::LESS_EQUAL);
 		return makeToken(TokenType::LESS);
 	}
 	
@@ -75,6 +76,10 @@ char Scanner::advance() {
 #pragma endregion
 
 #pragma region Helpers
+
+bool Scanner::isDigit(char c) {
+	return c <= '9' && c >= '0';
+}
 
 #pragma endregion
 
@@ -116,7 +121,7 @@ Token Scanner::makeToken(TokenType type) {
 Token Scanner::errorToken(const string& message) {
 	Token token;
 	token.type = TokenType::ERROR;
-	token.start = message.begin();
+	token.start = &message[0];
 	token.length = message.size();
 	token.line = line;
 	return token;
@@ -131,6 +136,18 @@ Token Scanner::stringToken() {
 	advance();
 
 	return makeToken(TokenType::STRING);
+}
+
+Token Scanner::numberToken() {
+	while(isDigit(peek())) advance();
+
+	if (peek() == '.' && isDigit(peekNext())) {
+		advance();
+
+		while(isDigit(peek())) advance();
+	}
+
+	return makeToken(TokenType::NUMBER);
 }
 
 #pragma endregion

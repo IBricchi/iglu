@@ -10,16 +10,16 @@ class Scanner
 {
 private:
 	// variables
-	string::const_iterator start;
-	string::const_iterator current;
-	string::const_iterator end;
+	const char* start;
+	const char* current;
 	int line;
 
 	// controls
 	char peek();
 	char peekNext();
 	char advance();
-	char isAlpha();
+	bool isDigit(char);
+	bool isAlpha(char);
 
 	// helpers
 
@@ -28,8 +28,9 @@ private:
 	Token makeToken(TokenType);
 	Token errorToken(const string&);
 	Token stringToken();
+	Token numberToken();
 public:
-	Scanner(const string&);
+	Scanner(const string& source);
 	bool isAtEnd();
 	Token scanToken();
 };

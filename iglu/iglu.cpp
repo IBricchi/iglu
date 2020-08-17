@@ -29,15 +29,15 @@ static void repl() {
 	string line;
 	while (true) {
 		cout << "~> ";
-		getline(cin, line);
+		cin >> line;
 		if (cin.fail()) {
 			cout << endl;
 			break;
 		}
 		Scanner scanner(line);
-		vector<Token> vs{};
+		vector<Token> tokens{};
 		while (!scanner.isAtEnd()) {
-			vs.push_back(scanner.scanToken());
+			tokens.push_back(scanner.scanToken());
 		}
 	}
 }

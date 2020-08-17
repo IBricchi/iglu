@@ -1,7 +1,5 @@
 #pragma once
 
-#include <string>
-
 enum struct TokenType {
 	LEFT_PARAN, RIGHT_PARAN,
 	LEFT_BRACE, RIGHT_BRACE,
@@ -27,7 +25,7 @@ enum struct TokenType {
 
 struct Token {
 	TokenType type;
-	std::string::const_iterator start;
+	const char* start;
 	int length;
 	int line;
 };
