@@ -1,6 +1,8 @@
 #pragma once
 
-enum TokenType {
+#include <string>
+
+enum struct TokenType {
 	LEFT_PARAN, RIGHT_PARAN,
 	LEFT_BRACE, RIGHT_BRACE,
 	PLUS, MINUS, STAR, SLASH,
@@ -25,7 +27,7 @@ enum TokenType {
 
 struct Token {
 	TokenType type;
-	const char* start;
+	string::const_iterator start;
 	int length;
 	int line;
 };
