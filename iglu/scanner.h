@@ -1,11 +1,12 @@
+#pragma once
+
 #include <string>
 
 #include "token.h"
 
 using namespace std;
 
-#pragma once
-class scanner
+class Scanner
 {
 private:
 	// variables
@@ -15,7 +16,6 @@ private:
 	int line;
 
 	// controls
-	bool isAtEnd();
 	char peek();
 	char peekNext();
 	char advance();
@@ -27,7 +27,8 @@ private:
 	Token errorToken(const string&);
 	void skipWhiteSpace();
 public:
-	scanner(const string&);
+	Scanner(const string&);
+	bool isAtEnd();
 	Token scanToken();
 };
 

@@ -27,7 +27,7 @@ enum struct TokenType {
 
 struct Token {
 	TokenType type;
-	string::const_iterator start;
+	std::string::const_iterator start;
 	int length;
 	int line;
 };

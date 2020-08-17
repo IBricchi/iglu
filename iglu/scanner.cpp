@@ -1,15 +1,19 @@
-#include "scanner.h"
+#include "Scanner.h"
 
 #pragma region API
 
-scanner::scanner(const string& source) {
+Scanner::Scanner(const string& source) {
 	this->start = source.begin();
 	this->current = source.begin();
 	this->end = source.end();
 	this->line = 0;
 }
 
-Token scanner::scanToken() {
+bool Scanner::isAtEnd() {
+	return current == end;
+}
+
+Token Scanner::scanToken() {
 	skipWhiteSpace();
 	
 	start = current;
@@ -33,17 +37,17 @@ Token scanner::scanToken() {
 	case ';': return makeToken(TokenType::SEMICOLON);
 
 	case '=':
-		if(peek() == '=') return makeToken(TokenType::EQUAL_EQUAL);
-		if(peek() == '>') return makeToken(TokenType::ARROW);
+		if(!isAtEnd() && peek() == '=') return makeToken(TokenType::EQUAL_EQUAL);
+		if(!isAtEnd() && peek() == '>') return makeToken(TokenType::ARROW);
 		return makeToken(TokenType::EQUAL);
 	case '!':
-		if(peek() == '=') return makeToken(TokenType::BANG_EQUAL);
+		if(!isAtEnd() && peek() == '=') return makeToken(TokenType::BANG_EQUAL);
 		return makeToken(TokenType::BANG);
 	case '>':
-		if(peek() == '=') return makeToken(TokenType::GREATER_EQUAL);
+		if(!isAtEnd() && peek() == '=') return makeToken(TokenType::GREATER_EQUAL);
 		return makeToken(TokenType::GREATER);
 	case '<':
-		if(peek() == '=') return makeToken(TokenType::LESS_EQUAL);
+		if(!isAtEnd() && peek() == '=') return makeToken(TokenType::LESS_EQUAL);
 		return makeToken(TokenType::LESS);
 	}
 	
@@ -54,20 +58,16 @@ Token scanner::scanToken() {
 
 #pragma region Control
 
-bool scanner::isAtEnd() {
-	return current == end;
-}
-
-char scanner::peek() {
+char Scanner::peek() {
 	return *current;
 }
 
-char scanner::peekNext() {
+char Scanner::peekNext() {
 	if(isAtEnd()) return '\0';
 	return current[1];
 }
 
-char scanner::advance() {
+char Scanner::advance() {
 	return *current++;
 }
 
@@ -78,7 +78,7 @@ char scanner::advance() {
 #pragma endregion
 
 #pragma region TokenSpecifics
-Token scanner::makeToken(TokenType type) {
+Token Scanner::makeToken(TokenType type) {
 	Token token;
 	token.type = type;
 	token.start = start;
@@ -88,7 +88,7 @@ Token scanner::makeToken(TokenType type) {
 	return token;
 }
 
-Token scanner::errorToken(const string& message) {
+Token Scanner::errorToken(const string& message) {
 	Token token;
 	token.type = TokenType::ERROR;
 	token.start = message.begin();
@@ -97,25 +97,24 @@ Token scanner::errorToken(const string& message) {
 	return token;
 }
 
-void scanner::skipWhiteSpace() {
+void Scanner::skipWhiteSpace() {
 	while (true) {
 		char c = peek();
-		switch (c)
-		{
-		case ' ':
-		case '\r':
-		case '\t':
-			advance();
-			break;
-		case '\n':
-			line++;
-			break;
-		case '/':
-			if (peekNext() == '//') {
-				while (peekNext() != '/' && !isAtEnd()) advance();
-			}
-		default:
-			break;
+		switch (c){
+			case ' ':
+			case '\r':
+			case '\t':
+				advance();
+				break;
+			case '\n':
+				line++;
+				break;
+			case '/':
+				if (peekNext() == '//') {
+					while (peekNext() != '/' && !isAtEnd()) advance();
+				}
+			default:
+				return;
 		}
 	}
 }
