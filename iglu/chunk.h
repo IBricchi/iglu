@@ -7,7 +7,7 @@ enum class OpCode {
 
 };
 
-class Chunk
+struct Chunk
 {
 private:
 	std::vector<uint8_t> code;
