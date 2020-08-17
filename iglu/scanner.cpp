@@ -100,7 +100,43 @@ TokenType Scanner::identifierType() {
 	switch (c)
 	{
 	case 'a':
-		if(checkKeyword(1,2,"nd")) return TokenType::AND;
+		if (checkKeyword(1, 2, "nd")) return TokenType::AND;
+		break;
+	case 'c':
+		if (checkKeyword(1, 7, "hild_of")) return TokenType::CHILD_OF;
+		break;
+	case 'e':
+		if (checkKeyword(1, 3, "lse")) return TokenType::ELSE;
+		break;
+	case 'f':
+		if (checkKeyword(1, 4, "alse")) return TokenType::FALSE;
+		if (checkKeyword(1, 2, "or")) return TokenType::FOR;
+		if (checkKeyword(1, 2, "un")) return TokenType::FUN;
+	case 'i':
+		if (checkKeyword(1, 1, "f")) return TokenType::IF;
+		break;
+	case 'l':
+		if (checkKeyword(1, 2, "et")) return TokenType::LET;
+		break;
+	case 'n':
+		if (checkKeyword(1, 3, "ull")) return TokenType::NILL;
+		break;
+	case 'o':
+		if (checkKeyword(1, 1, "r"))return TokenType::OR;
+		break;
+	case 'p':
+		if (checkKeyword(1, 5, "arent")) return TokenType::PARENT;
+		break;
+	case 'r':
+		if (checkKeyword(1, 5, "eturn")) return TokenType::RETURN;
+		break;
+	case 't':
+		if (checkKeyword(1, 3, "his")) return TokenType::THIS;
+		if (checkKeyword(1, 3, "rue")) return TokenType::TRUE;
+		break;
+	case 'w':
+		if (checkKeyword(1, 4, "hile")) return TokenType::WHILE;
+		break;
 	}
 	return TokenType::IDENTIFIER;
 }

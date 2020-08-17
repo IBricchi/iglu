@@ -16,7 +16,7 @@ enum struct TokenType {
 
 	AND, OR, IF, ELSE, RETURN,
 	TRUE, FALSE, FOR, WHILE,
-	LET, FUN, NIL,
+	LET, FUN, NILL,
 	THIS, PARENT, CHILD_OF,
 
 	ERROR,
