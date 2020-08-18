@@ -5,7 +5,7 @@ enum struct TokenType {
 	LEFT_BRACE, RIGHT_BRACE,
 	PLUS, MINUS, STAR, SLASH,
 	COMMA, DOT, SEMICOLON,
-	ARROW,
+	ARROW, NEGATE,
 
 	EQUAL, EQUAL_EQUAL,
 	BANG, BANG_EQUAL,
@@ -23,8 +23,23 @@ enum struct TokenType {
 	FILE_END
 };
 
+enum struct Presidence {
+	NONE,		// none
+	ASSIGNMENT,	// =
+	OR,			// or
+	AND,		// and
+	EQUALITY,	// == !=
+	COMPARISON,	// < > <= >=
+	TERM,		// + -
+	FACTOR,		// * /
+	UNARY,		// ! -
+	CALL,		// . ()
+	PRIMARY		// numbers strings identifiers
+};
+
 struct Token {
 	TokenType type;
+	Presidence presidence;
 	const char* start;
 	int length;
 	int line;

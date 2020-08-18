@@ -1,15 +1,12 @@
 #include "Scanner.h"
 
-#pragma region API
+// API
 
 Scanner::Scanner(const char* source) {
 	this->start = source;
 	this->current = source;
 	this->line = 0;
-}
-
-bool Scanner::isAtEnd() {
-	return *current == '\0';
+	prev = makeToken(TokenType::LEFT_BRACE);
 }
 
 Token Scanner::scanToken() {
@@ -31,7 +28,6 @@ Token Scanner::scanToken() {
 	case '{': return makeToken(TokenType::RIGHT_BRACE);
 	case '}': return makeToken(TokenType::LEFT_BRACE);
 	case '+': return makeToken(TokenType::PLUS);
-	case '-': return makeToken(TokenType::MINUS);
 	case '*': return makeToken(TokenType::STAR);
 	case '/': return makeToken(TokenType::SLASH);
 	case ',': return makeToken(TokenType::COMMA);
@@ -39,6 +35,10 @@ Token Scanner::scanToken() {
 	case ';': return makeToken(TokenType::SEMICOLON);
 	case '"': return stringToken();
 
+	case '-':
+		if (prev.type == TokenType::IDENTIFIER || prev.type == TokenType::NUMBER || prev.type == TokenType::RIGHT_PARAN || prev.type == TokenType::STRING)
+			return makeToken(TokenType::MINUS);
+		return makeToken(TokenType::NEGATE);
 	case '=':
 		if(peek() == '=') return makeToken(TokenType::EQUAL_EQUAL);
 		if(peek() == '>') return makeToken(TokenType::ARROW);
@@ -57,9 +57,7 @@ Token Scanner::scanToken() {
 	return errorToken("Unexpected character.");
 }
 
-#pragma endregion
-
-#pragma region Control
+// Control
 
 char Scanner::peek() {
 	return *current;
@@ -74,9 +72,11 @@ char Scanner::advance() {
 	return *current++;
 }
 
-#pragma endregion
+// Helpers
 
-#pragma region Helpers
+bool Scanner::isAtEnd() {
+	return *current == '\0';
+}
 
 bool Scanner::isDigit(char c) {
 	return c <= '9' && c >= '0';
@@ -141,9 +141,65 @@ TokenType Scanner::identifierType() {
 	return TokenType::IDENTIFIER;
 }
 
-#pragma endregion
+Presidence Scanner::getPresidence(TokenType type) {
+	switch (type)
+	{
+	case TokenType::LEFT_PARAN:
+	case TokenType::RIGHT_PARAN:
+	case TokenType::LEFT_BRACE:
+	case TokenType::RIGHT_BRACE:
+	case TokenType::COMMA:
+	case TokenType::SEMICOLON:
+	case TokenType::ARROW:
+	case TokenType::IF:
+	case TokenType::ELSE:
+	case TokenType::RETURN:
+	case TokenType::FOR:
+	case TokenType::WHILE:
+	case TokenType::LET:
+	case TokenType::FUN:
+	case TokenType::PARENT:
+	case TokenType::CHILD_OF:
+	case TokenType::ERROR:
+	case TokenType::FILE_END:
+		return Presidence::NONE;
+	case TokenType::EQUAL:
+		return Presidence::ASSIGNMENT;
+	case TokenType::OR:
+		return Presidence::OR;
+	case TokenType::AND:
+		return Presidence::AND;
+	case TokenType::EQUAL_EQUAL:
+	case TokenType::BANG:
+	case TokenType::BANG_EQUAL:
+	case TokenType::GREATER:
+	case TokenType::GREATER_EQUAL:
+	case TokenType::LESS:
+	case TokenType::LESS_EQUAL:
+		return Presidence::EQUALITY;
+		return Presidence::COMPARISON;
+	case TokenType::PLUS:
+	case TokenType::MINUS:
+		return Presidence::TERM;
+	case TokenType::STAR:
+	case TokenType::SLASH:
+		return Presidence::FACTOR;
+	case TokenType::NEGATE:
+		return Presidence::UNARY;
+	case TokenType::DOT:
+		return Presidence::CALL;
+	case TokenType::IDENTIFIER:
+	case TokenType::STRING:
+	case TokenType::NUMBER:
+	case TokenType::TRUE:
+	case TokenType::FALSE:
+	case TokenType::NILL:
+	case TokenType::THIS:
+		return Presidence::PRIMARY;
+	}
+}
 
-#pragma region TokenSpecifics
+// Token Specifics
 
 void Scanner::skipWhiteSpace() {
 	while (true) {
@@ -171,9 +227,12 @@ void Scanner::skipWhiteSpace() {
 Token Scanner::makeToken(TokenType type) {
 	Token token;
 	token.type = type;
+	token.presidence = getPresidence(type);
 	token.start = start;
 	token.length = current - start;
 	token.line = line;
+
+	prev = token;
 
 	return token;
 }
@@ -215,6 +274,3 @@ Token Scanner::identifierToken() {
 	
 	return makeToken(identifierType());
 }
-
-#pragma endregion
-

@@ -15,20 +15,7 @@ static void runFile(string path);
 int main(int argc, char** argv)
 {
 	if (argc == 1) {
-		//repl();
-		Chunk c{};
-		c.objects.push_back(new Object());
-		c.objects[0]->val = (void*)new int(1);
-		c.objects.push_back(new Object());
-		c.objects[1]->val = (void*)new int(1);
-		c.code.push_back((uint8_t)OpCode::OBJECT);
-		c.code.push_back(0);
-		c.code.push_back((uint8_t)OpCode::OBJECT);
-		c.code.push_back(1);
-		c.code.push_back((uint8_t)OpCode::ADD);
-		c.code.push_back((uint8_t)OpCode::RETURN);
-		VM vm{};
-		vm.interpret(&c);
+		repl();
 	}
 	else if (argc == 2) {
 		runFile(string(argv[1]));
@@ -51,7 +38,7 @@ static void repl() {
 		}
 		Scanner scanner(&line[0]);
 		vector<Token> tokens{};
-		while (!scanner.isAtEnd()) {
+		while (tokens.size() == 0 || tokens[tokens.size()-1].type != TokenType::FILE_END) {
 			tokens.push_back(scanner.scanToken());
 		}
 	}

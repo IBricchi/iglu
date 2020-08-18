@@ -13,6 +13,7 @@ private:
 	const char* start;
 	const char* current;
 	int line;
+	Token prev;
 
 	// controls
 	char peek();
@@ -20,11 +21,13 @@ private:
 	char advance();
 
 	// helpers
+	bool isAtEnd();
 	bool isDigit(char);
 	bool isAlpha(char);
 	bool isAlphaNumeric(char);
 	bool checkKeyword(int, int, const char*);
 	TokenType identifierType();
+	static Presidence getPresidence(TokenType);
 
 	// token specifics
 	void skipWhiteSpace();
@@ -35,7 +38,6 @@ private:
 	Token identifierToken();
 public:
 	Scanner(const char* source);
-	bool isAtEnd();
 	Token scanToken();
 };
 

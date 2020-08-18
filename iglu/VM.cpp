@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "VM.h"
 
 using namespace std;
@@ -39,6 +41,7 @@ InterpreterResults VM::run() {
 			break;
 		}
 		case OpCode::RETURN:
+			cout << *((int*)objStack.top()->val) << endl;
 			leaveChunk();
 			break;
 		}
