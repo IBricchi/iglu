@@ -7,7 +7,8 @@
 
 enum struct OpCode {
 	OBJECT,
-	ADD,
+	PLUS,
+	BINARY_FUNC_CALL,
 	RETURN
 };
 

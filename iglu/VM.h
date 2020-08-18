@@ -19,13 +19,14 @@ class VM
 {
 private:
 	std::stack<Chunk*> chunks;
-	std::stack<uint8_t*> pc;
 	std::stack<Object*> objStack;
+	std::stack<uint8_t*> pc;
 	
 	//helpers
 	uint8_t readByte();
 	Object* readObject();
 	Object* popStack();
+	Object* topStack();
 	void pushStack(Object*);
 	void intoChunk(Chunk*);
 	void leaveChunk();

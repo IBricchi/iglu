@@ -1,20 +1,19 @@
 #include "Object.h"
 
-Object::~Object() {
-	delete val;
+using namespace std;
+
+Object::Object() {
+	properties = map<string, Chunk*>();
+	binaryFuncs = vector<Object* (*)(Object*, Object*)>();
 }
 
-Chunk* Object::plus(VM* vm, Object* obj) {
-	Chunk* chunk = new Chunk();
+Object::~Object() {
+	delete val;
+	for (auto i = properties.begin(); i != properties.end(); i++) {
+		delete i->second;
+	}
+}
 
-	Object* c = new Object();
-	c->val = new int( *((int*)this->val) + *((int*)obj->val) );
-	chunk->objects.push_back(c);
-
-	chunk->code.push_back((uint8_t)OpCode::OBJECT);
-	chunk->code.push_back(0);
-
-	chunk->code.push_back((uint8_t)OpCode::RETURN);
-
-	return chunk;
+void* Object::getVal() {
+	return val;
 }

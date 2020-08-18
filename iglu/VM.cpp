@@ -33,19 +33,25 @@ InterpreterResults VM::run() {
 			objStack.push(obj);
 			break;
 		}
-		case OpCode::ADD:
+		case OpCode::PLUS:
+		{
+			Object* a = topStack();
+			intoChunk(a->properties["__plus__"]);
+			break;
+		}
+		case OpCode::BINARY_FUNC_CALL:
 		{
 			Object* a = popStack();
 			Object* b = popStack();
-			intoChunk(a->plus(this, b));
-			break;
+			uint8_t fi = readByte();
+			pushStack(a->binaryFuncs[fi](a, b));
 		}
 		case OpCode::RETURN:
-			cout << *((int*)objStack.top()->val) << endl;
 			leaveChunk();
 			break;
 		}
 	}
+	cout << *(float*)objStack.top()->getVal() << endl;
 	return out;
 }
 
@@ -63,6 +69,10 @@ inline Object* VM::popStack() {
 	Object* poped = objStack.top();
 	objStack.pop();
 	return poped;
+}
+
+inline Object* VM::topStack() {
+	return objStack.top();
 }
 
 inline void VM::pushStack(Object* obj) {

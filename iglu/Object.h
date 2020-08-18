@@ -10,12 +10,13 @@
 
 class Object
 {
-private:
-	std::map<std::string, Chunk*> properties;
-public:
-	Object(){};
+protected:
 	void* val;
+public:
+	std::map<std::string, Chunk*> properties;
+	std::vector<Object* (*)(Object*, Object*)> binaryFuncs;
+	Object();
 	~Object();
-	Chunk* plus(VM*, Object*);
+	void* getVal();
 };
 
