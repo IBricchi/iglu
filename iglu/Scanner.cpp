@@ -199,6 +199,29 @@ Presidence Scanner::getPresidence(TokenType type) {
 	}
 }
 
+bool Scanner::isLeftAssoc(TokenType type) {
+	switch (type)
+	{
+	case TokenType::PLUS:
+	case TokenType::MINUS:
+	case TokenType::STAR:
+	case TokenType::SLASH:
+	case TokenType::COMMA:
+	case TokenType::DOT:
+	case TokenType::EQUAL_EQUAL:
+	case TokenType::BANG_EQUAL:
+	case TokenType::GREATER:
+	case TokenType::GREATER_EQUAL:
+	case TokenType::LESS:
+	case TokenType::LESS_EQUAL:
+	case TokenType::AND:
+	case TokenType::OR:
+		return true;
+	default:
+		return false;
+	}
+}
+
 // Token Specifics
 
 void Scanner::skipWhiteSpace() {
@@ -228,6 +251,7 @@ Token Scanner::makeToken(TokenType type) {
 	Token token;
 	token.type = type;
 	token.presidence = getPresidence(type);
+	token.leftAssoc = isLeftAssoc(type);
 	token.start = start;
 	token.length = current - start;
 	token.line = line;

@@ -28,6 +28,7 @@ private:
 	bool checkKeyword(int, int, const char*);
 	TokenType identifierType();
 	static Presidence getPresidence(TokenType);
+	static bool isLeftAssoc(TokenType);
 
 	// token specifics
 	void skipWhiteSpace();

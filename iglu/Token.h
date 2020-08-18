@@ -40,6 +40,7 @@ enum struct Presidence {
 struct Token {
 	TokenType type;
 	Presidence presidence;
+	bool leftAssoc;
 	const char* start;
 	int length;
 	int line;
