@@ -24,7 +24,6 @@ enum struct TokenType {
 };
 
 enum struct Presidence {
-	NONE,		// none
 	ASSIGNMENT,	// =
 	OR,			// or
 	AND,		// and
@@ -34,7 +33,8 @@ enum struct Presidence {
 	FACTOR,		// * /
 	UNARY,		// ! -
 	CALL,		// . ()
-	PRIMARY		// numbers strings identifiers
+	PRIMARY,	// numbers strings identifiers
+	NONE		// none
 };
 
 struct Token {

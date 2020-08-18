@@ -1,5 +1,7 @@
 #pragma once
 
+#include <queue>
+
 #include "common.h"
 #include "Scanner.h"
 #include "AST.h"
@@ -9,7 +11,7 @@ class Parser
 {
 private:
 	Scanner* scanner;
-	AST* ast;
+	queue<Token>* rpn;
 
 	// specific parsers
 	InterpreterResults statement();

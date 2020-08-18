@@ -1,9 +1,10 @@
 #include <iostream>
 #include <string>
 
-#include "scanner.h"
 
 #include <vector>
+#include "Scanner.h"
+#include "Parser.h"
 #include "Chunk.h"
 #include "VM.h"
 
@@ -37,10 +38,8 @@ static void repl() {
 			break;
 		}
 		Scanner scanner(&line[0]);
-		vector<Token> tokens{};
-		while (tokens.size() == 0 || tokens[tokens.size()-1].type != TokenType::FILE_END) {
-			tokens.push_back(scanner.scanToken());
-		}
+		Parser parser(&scanner);
+		parser.parse();
 	}
 }
 
