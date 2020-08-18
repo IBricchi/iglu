@@ -144,6 +144,7 @@
     <ClCompile Include="Compiler.cpp" />
     <ClCompile Include="iglu.cpp" />
     <ClCompile Include="Object.cpp" />
+    <ClCompile Include="Parser.cpp" />
     <ClCompile Include="Scanner.cpp" />
     <ClCompile Include="VM.cpp" />
   </ItemGroup>
@@ -152,6 +153,7 @@
     <ClInclude Include="common.h" />
     <ClInclude Include="Compiler.h" />
     <ClInclude Include="Object.h" />
+    <ClInclude Include="Parser.h" />
     <ClInclude Include="Scanner.h" />
     <ClInclude Include="Token.h" />
     <ClInclude Include="VM.h" />
