@@ -40,17 +40,17 @@ Token Scanner::scanToken() {
 			return makeToken(TokenType::MINUS);
 		return makeToken(TokenType::NEGATE);
 	case '=':
-		if(peek() == '=') return makeToken(TokenType::EQUAL_EQUAL);
-		if(peek() == '>') return makeToken(TokenType::ARROW);
+		if(match('=')) return makeToken(TokenType::EQUAL_EQUAL);
+		if(match('>')) return makeToken(TokenType::ARROW);
 		return makeToken(TokenType::EQUAL);
 	case '!':
-		if(peek() == '=') return makeToken(TokenType::BANG_EQUAL);
+		if(match('=')) return makeToken(TokenType::BANG_EQUAL);
 		return makeToken(TokenType::BANG);
 	case '>':
-		if(peek() == '=') return makeToken(TokenType::GREATER_EQUAL);
+		if(match('='))return makeToken(TokenType::GREATER_EQUAL);
 		return makeToken(TokenType::GREATER);
 	case '<':
-		if(peek() == '=') return makeToken(TokenType::LESS_EQUAL);
+		if(match('=')) return makeToken(TokenType::LESS_EQUAL);
 		return makeToken(TokenType::LESS);
 	}
 	
@@ -70,6 +70,12 @@ char Scanner::peekNext() {
 
 char Scanner::advance() {
 	return *current++;
+}
+
+bool Scanner::match(char c) {
+	if(!peek()==c) return false;
+	advance();
+	return true;
 }
 
 // Helpers

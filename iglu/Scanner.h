@@ -19,6 +19,7 @@ private:
 	char peek();
 	char peekNext();
 	char advance();
+	bool match(char);
 
 	// helpers
 	bool isAtEnd();
