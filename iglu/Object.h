@@ -14,7 +14,7 @@ protected:
 	void* val;
 public:
 	std::map<std::string, Chunk*> properties;
-	std::vector<Object* (*)(Object*, Object*)> binaryFuncs;
+	std::vector<Object* (Object::*)(Object*)> binaryFuncs;
 	Object();
 	~Object();
 	void* getVal();

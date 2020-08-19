@@ -8,13 +8,13 @@ Number::Number(float val) {
 	plus->code.push_back(0);
 	plus->code.push_back((uint8_t) OpCode::RETURN);
 
-	this->binaryFuncs.push_back(add);
+	this->binaryFuncs.push_back((Object* (Object::*)(Object*)) &Number::add);
 
 	this->properties.insert({"__plus__", plus});
 }
 
-Object* Number::add(Object* a, Object* b) {
-	float aVal = *(float*)a->getVal();
+Object* Number::add(Object* b) {
+	float aVal = *(float*)val;
 	float bVal = *(float*)b->getVal();
 
 	return new Number(aVal + bVal);

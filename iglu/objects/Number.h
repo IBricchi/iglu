@@ -5,7 +5,7 @@
 class Number : public Object
 {
 private:
-	static Object* add(Object*, Object*);
+	Object* add(Object*);
 public:
 	Number(float);
 };

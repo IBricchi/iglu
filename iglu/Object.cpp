@@ -4,7 +4,7 @@ using namespace std;
 
 Object::Object() {
 	properties = map<string, Chunk*>();
-	binaryFuncs = vector<Object* (*)(Object*, Object*)>();
+	binaryFuncs = vector<Object* (Object::*)(Object*)>();
 }
 
 Object::~Object() {

@@ -44,7 +44,8 @@ InterpreterResults VM::run() {
 			Object* a = popStack();
 			Object* b = popStack();
 			uint8_t fi = readByte();
-			pushStack(a->binaryFuncs[fi](a, b));
+			Object* c = (a->*(a->binaryFuncs[fi]))(b);
+			pushStack(c);
 		}
 		case OpCode::RETURN:
 			leaveChunk();
