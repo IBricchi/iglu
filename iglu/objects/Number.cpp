@@ -8,7 +8,7 @@ Number::Number(float val) {
 	plus->code.push_back(0);
 	plus->code.push_back((uint8_t) OpCode::RETURN);
 
-	this->binaryFuncs.push_back((Object* (Object::*)(Object*)) &Number::add);
+	this->binFns.push_back((Object::binFn) &Number::add);
 
 	this->properties.insert({"__plus__", plus});
 }

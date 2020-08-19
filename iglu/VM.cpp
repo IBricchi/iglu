@@ -44,7 +44,7 @@ InterpreterResults VM::run() {
 			Object* a = popStack();
 			Object* b = popStack();
 			uint8_t fi = readByte();
-			Object* c = (a->*(a->binaryFuncs[fi]))(b);
+			Object* c = (a->*(a->binFns[fi]))(b);
 			pushStack(c);
 		}
 		case OpCode::RETURN:
