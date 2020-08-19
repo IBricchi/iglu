@@ -78,10 +78,18 @@ InterpreterResults VM::run() {
 			}
 			break;
 		}
-		case OpCode::BINARY_FUNC_CALL:
+		case OpCode::UNARY_FUNC_CALL:
 		{
 			Object* a = popStack();
+			uint8_t fi = readByte();
+			Object* b = (a->*a->unoFns[fi])();
+			pushStack(b);
+			break;
+		}
+		case OpCode::BINARY_FUNC_CALL:
+		{
 			Object* b = popStack();
+			Object* a = popStack();
 			uint8_t fi = readByte();
 			Object* c = (a->*(a->binFns[fi]))(b);
 			pushStack(c);
