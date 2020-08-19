@@ -18,6 +18,7 @@ enum struct OpCode {
 	SLASH,
 
 	// call cpp function
+	UNARY_FUNC_CALL,
 	BINARY_FUNC_CALL,
 
 	// return

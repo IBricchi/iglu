@@ -33,10 +33,34 @@ InterpreterResults VM::run() {
 			objStack.push(obj);
 			break;
 		}
+		case OpCode::NEGATE:
+		{
+			Object* a = topStack();
+			intoChunk(a->properties["__negate__"]);
+			break;
+		}
 		case OpCode::PLUS:
 		{
 			Object* a = topStack();
 			intoChunk(a->properties["__plus__"]);
+			break;
+		}
+		case OpCode::MINUS:
+		{
+			Object* a = topStack();
+			intoChunk(a->properties["__minus__"]);
+			break;
+		}
+		case OpCode::STAR:
+		{
+			Object* a = topStack();
+			intoChunk(a->properties["__star__"]);
+			break;
+		}
+		case OpCode::SLASH:
+		{
+			Object* a = topStack();
+			intoChunk(a->properties["__slash__"]);
 			break;
 		}
 		case OpCode::BINARY_FUNC_CALL:

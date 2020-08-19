@@ -14,6 +14,30 @@ Object::~Object() {
 	}
 }
 
+Chunk* Object::generateFnChunk(unoFn fn) {
+	Chunk* chunk = new Chunk();
+	chunk->writeOpByte(0, OpCode::UNARY_FUNC_CALL, unoFns.size());
+	chunk->writeOp(0, OpCode::RETURN);
+	unoFns.push_back(fn);
+	return chunk;
+}
+
+Chunk* Object::generateFnChunk(binFn fn) {
+	Chunk* chunk = new Chunk();
+	chunk->writeOpByte(0, OpCode::BINARY_FUNC_CALL, binFns.size());
+	chunk->writeOp(0, OpCode::RETURN);
+	binFns.push_back(fn);
+	return chunk;
+}
+
+void Object::addFnProperty(string prop, Object::unoFn fn) {
+	properties[prop] = generateFnChunk(fn);
+}
+
+void Object::addFnProperty(string prop, Object::binFn fn) {
+	properties[prop] = generateFnChunk(fn);
+}
+
 void* Object::getVal() {
 	return val;
 }

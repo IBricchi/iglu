@@ -8,7 +8,11 @@
 class Number : public Object
 {
 private:
+	Object* negate();
 	Object* add(Object*);
+	Object* sub(Object*);
+	Object* mult(Object*);
+	Object* div(Object*);
 public:
 	Number(float);
 };
