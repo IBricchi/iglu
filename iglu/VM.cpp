@@ -1,6 +1,6 @@
-#include <iostream>
-
 #include "VM.h"
+
+#include <iostream>
 
 using namespace std;
 

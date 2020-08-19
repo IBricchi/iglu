@@ -3,15 +3,16 @@
 #include <queue>
 
 #include "common.h"
+
 #include "Scanner.h"
-#include "AST.h"
+#include "Token.h"
 #include "VM.h"
 
 class Parser
 {
 private:
 	Scanner* scanner;
-	queue<Token>* rpn;
+	std::queue<Token>* rpn;
 
 	// specific parsers
 	InterpreterResults statement();
@@ -20,6 +21,6 @@ private:
 
 public:
 	Parser(Scanner*);
-	InterpreterResults parse();
+	InterpreterResults parseStatement();
 };
 

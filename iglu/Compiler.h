@@ -1,27 +1,16 @@
 #pragma once
 
-#include "VM.h"
+#include "common.h"
+
 #include "Scanner.h"
 #include "Token.h"
 
-class compiler
+class Compiler
 {
 private:
-	Scanner scanner;
-	VM vm;
-	Token current;
-	Token previous;
-
-	// controlls
-	void advance();
-	void consume(TokenType, const char*);
-
-	// error messages
-	void errorAt(Token&, const char*);
-	void error(const char*);
-	void errorAtCurrent(const char *);
+	Parser* parser;
 
 public:
-	
+	Compiler(Parser*);
 };
 

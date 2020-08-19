@@ -2,9 +2,9 @@
 
 #include <string>
 
-#include "token.h"
+#include "common.h"
 
-using namespace std;
+#include "Token.h"
 
 class Scanner
 {
@@ -34,7 +34,7 @@ private:
 	// token specifics
 	void skipWhiteSpace();
 	Token makeToken(TokenType);
-	Token errorToken(const string&);
+	Token errorToken(const std::string&);
 	Token stringToken();
 	Token numberToken();
 	Token identifierToken();

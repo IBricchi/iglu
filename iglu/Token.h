@@ -1,5 +1,5 @@
 #pragma once
-
+//41
 enum struct TokenType {
 	LEFT_PARAN, RIGHT_PARAN,
 	LEFT_BRACE, RIGHT_BRACE,

@@ -1,8 +1,10 @@
 #pragma once
 
-class VM;
-class Object;
+struct AST;
 struct Chunk;
+class Compiler;
+class Object;
 class Parser;
 class Scanner;
-struct AST;
+struct Token;
+class VM;

@@ -1,5 +1,7 @@
 #include "Scanner.h"
 
+using namespace std;
+
 // API
 
 Scanner::Scanner(const char* source) {
@@ -176,13 +178,12 @@ Presidence Scanner::getPresidence(TokenType type) {
 	case TokenType::AND:
 		return Presidence::AND;
 	case TokenType::EQUAL_EQUAL:
-	case TokenType::BANG:
 	case TokenType::BANG_EQUAL:
+		return Presidence::EQUALITY;
 	case TokenType::GREATER:
 	case TokenType::GREATER_EQUAL:
 	case TokenType::LESS:
 	case TokenType::LESS_EQUAL:
-		return Presidence::EQUALITY;
 		return Presidence::COMPARISON;
 	case TokenType::PLUS:
 	case TokenType::MINUS:
@@ -190,6 +191,7 @@ Presidence Scanner::getPresidence(TokenType type) {
 	case TokenType::STAR:
 	case TokenType::SLASH:
 		return Presidence::FACTOR;
+	case TokenType::BANG:
 	case TokenType::NEGATE:
 		return Presidence::UNARY;
 	case TokenType::DOT:

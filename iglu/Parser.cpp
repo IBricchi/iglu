@@ -1,6 +1,6 @@
-#include <stack>
-
 #include "Parser.h"
+
+#include <stack>
 
 using namespace std;
 
@@ -11,7 +11,7 @@ Parser::Parser(Scanner* scanner) {
 	this->scanner = scanner;
 }
 
-InterpreterResults Parser::parse() {
+InterpreterResults Parser::parseStatement() {
 	return expression();
 }
 

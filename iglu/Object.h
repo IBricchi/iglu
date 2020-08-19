@@ -5,8 +5,6 @@
 #include <string>
 
 #include "common.h"
-#include "Chunk.h"
-#include "VM.h"
 
 class Object
 {

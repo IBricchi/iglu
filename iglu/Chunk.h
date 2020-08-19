@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "common.h"
+
 #include "Object.h"
 
 enum struct OpCode {
