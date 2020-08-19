@@ -38,8 +38,10 @@ static void repl() {
 		}
 		Scanner scanner(&line[0]);
 		Parser parser(&scanner);
-		Compiler compiler(&parser);
-		parser.parseStatement();
+		parser.parse();
+		Compiler compiler{};
+		compiler.compile(parser.getRPN());
+		vm.interpret(compiler.getChunk());
 	}
 }
 

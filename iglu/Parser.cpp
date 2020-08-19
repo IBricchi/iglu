@@ -11,7 +11,17 @@ Parser::Parser(Scanner* scanner) {
 	this->scanner = scanner;
 }
 
-InterpreterResults Parser::parseStatement() {
+InterpreterResults Parser::parse() {
+	return statement();
+}
+
+queue<Token>* Parser::getRPN() {
+	return rpn;
+}
+
+// specific parsers
+
+InterpreterResults Parser::statement() {
 	return expression();
 }
 

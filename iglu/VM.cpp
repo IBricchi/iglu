@@ -46,6 +46,7 @@ InterpreterResults VM::run() {
 			uint8_t fi = readByte();
 			Object* c = (a->*(a->binFns[fi]))(b);
 			pushStack(c);
+			break;
 		}
 		case OpCode::RETURN:
 			leaveChunk();

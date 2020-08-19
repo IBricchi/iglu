@@ -21,6 +21,7 @@ private:
 
 public:
 	Parser(Scanner*);
-	InterpreterResults parseStatement();
+	std::queue<Token>* getRPN();
+	InterpreterResults parse();
 };
 

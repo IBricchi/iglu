@@ -7,9 +7,20 @@
 #include "Object.h"
 
 enum struct OpCode {
+	// objects
 	OBJECT,
+	
+	// arithmetic
+	NEGATE,
 	PLUS,
+	MINUS,
+	STAR,
+	SLASH,
+
+	// call cpp function
 	BINARY_FUNC_CALL,
+
+	// return
 	RETURN
 };
 
@@ -19,6 +30,8 @@ struct Chunk
 	std::vector<int> lines;
 	std::vector<Object*> objects;
 	Chunk();
-	void writeChunk(uint8_t, int);
+	void writeByte(int, uint8_t);
+	void writeOp(int, OpCode);
+	void writeOpByte(int, OpCode, uint8_t);
 };
 
