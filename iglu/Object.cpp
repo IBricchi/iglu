@@ -3,6 +3,7 @@
 using namespace std;
 
 Object::Object() {
+	type = "Object";
 	properties = map<string, Chunk*>();
 	binFns = vector<Object::binFn>();
 }

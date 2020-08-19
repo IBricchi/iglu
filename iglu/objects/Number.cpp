@@ -3,6 +3,7 @@
 using namespace std;
 
 Number::Number(float val) : Object{} {
+	type = "Number";
 	this->val = new float(val);
 
 	addFnProperty("__negate__", (Object::unoFn) &Number::negate);

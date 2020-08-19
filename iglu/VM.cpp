@@ -36,31 +36,46 @@ InterpreterResults VM::run() {
 		case OpCode::NEGATE:
 		{
 			Object* a = topStack();
-			intoChunk(a->properties["__negate__"]);
+			if (!callFunction(a, "__negate__")) {
+				out = InterpreterResults::RUN_ERR;
+				runtimeError("No overload for the '(-)' operator exsits for type: " + a->type + ".");
+			}
 			break;
 		}
 		case OpCode::PLUS:
 		{
 			Object* a = topStack();
-			intoChunk(a->properties["__plus__"]);
+			if (!callFunction(a, "__plus__")) {
+				out = InterpreterResults::RUN_ERR;
+				runtimeError("No overload for the '+' operator exsits for type: " + a->type + ".");
+			}
 			break;
 		}
 		case OpCode::MINUS:
 		{
 			Object* a = topStack();
-			intoChunk(a->properties["__minus__"]);
+			if (!callFunction(a, "__minus__")) {
+				out = InterpreterResults::RUN_ERR;
+				runtimeError("No overload for the '-' operator exsits for type: " + a->type + ".");
+			}
 			break;
 		}
 		case OpCode::STAR:
 		{
 			Object* a = topStack();
-			intoChunk(a->properties["__star__"]);
+			if (!callFunction(a, "__star__")) {
+				out = InterpreterResults::RUN_ERR;
+				runtimeError("No overload for the '*' operator exsits for type: " + a->type + ".");
+			}
 			break;
 		}
 		case OpCode::SLASH:
 		{
 			Object* a = topStack();
-			intoChunk(a->properties["__slash__"]);
+			if (!callFunction(a, "__slash__")) {
+				out = InterpreterResults::RUN_ERR;
+				runtimeError("No overload for the '/' operator exsits for type: " + a->type + ".");
+			}
 			break;
 		}
 		case OpCode::BINARY_FUNC_CALL:
@@ -113,4 +128,20 @@ void VM::intoChunk(Chunk* chunk) {
 void VM::leaveChunk() {
 	pc.pop();
 	chunks.pop();
+}
+
+bool VM::callFunction(Object* obj, string name) {
+	auto it = obj->properties.find(name);
+	if (it != obj->properties.end()) {
+		intoChunk(it->second);
+		return true;
+	}
+	return false;
+}
+
+void VM::runtimeError(string message) {
+	int line = chunks.top()->lines[pc.top() - &chunks.top()->code[0] - 1];
+	cerr << "[Line: " << line << "] " << message << endl;
+	while (!chunks.empty()) chunks.pop();
+	while (!pc.empty()) pc.pop();
 }

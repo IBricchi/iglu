@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stack>
+#include <string>
 
 #include "common.h"
 
@@ -31,6 +32,8 @@ private:
 	void pushStack(Object*);
 	void intoChunk(Chunk*);
 	void leaveChunk();
+	bool callFunction(Object*, std::string);
+	void runtimeError(std::string);
 
 	//important
 	InterpreterResults run();

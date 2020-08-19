@@ -20,6 +20,7 @@ protected:
 	void addFnProperty(std::string, Object::unoFn);
 	void addFnProperty(std::string, Object::binFn);
 public:
+	std::string type;
 	std::map<std::string, Chunk*> properties;
 	std::vector<Object::unoFn> unoFns;
 	std::vector<Object::binFn> binFns;
