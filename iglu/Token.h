@@ -1,5 +1,7 @@
 #pragma once
-//41
+
+#include <string>
+
 enum struct TokenType {
 	LEFT_PARAN, RIGHT_PARAN,
 	LEFT_BRACE, RIGHT_BRACE,
@@ -44,4 +46,6 @@ struct Token {
 	const char* start;
 	int length;
 	int line;
+
+	static std::string tokenName(TokenType);
 };

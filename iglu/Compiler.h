@@ -19,12 +19,12 @@ private:
 	void tokenToChunk(Token);
 
 // token specifics
-	InterpreterResults statement();
-	InterpreterResults expression();
+	void statement();
+	void expression();
 
 public:
 	Compiler();
 	Chunk* getChunk();
-	InterpreterResults compile(std::queue<Token>*);
+	void compile(std::queue<Token>*);
 };
 

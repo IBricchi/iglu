@@ -1,6 +1,7 @@
 #pragma once
 
 #include <queue>
+#include <exception>
 
 #include "common.h"
 
@@ -12,16 +13,23 @@ class Parser
 {
 private:
 	Scanner* scanner;
+	Token current;
 	std::queue<Token>* rpn;
 
+	// errors
+	struct PanicException: public std::exception {
+		const char* what() const throw();
+	};
+	void PanicError(std::string);
+
 	// specific parsers
-	InterpreterResults statement();
-	InterpreterResults expression();
+	bool statement();
+	bool expression(TokenType);
 
 
 public:
 	Parser(Scanner*);
 	std::queue<Token>* getRPN();
-	InterpreterResults parse();
+	bool parse();
 };
 

@@ -15,14 +15,14 @@ Chunk* Compiler::getChunk() {
 	return chunk;
 }
 
-InterpreterResults Compiler::compile(queue<Token>* rpn) {
+void Compiler::compile(queue<Token>* rpn) {
 	this->rpn = rpn;
 	Token rt{};
 	rt.line = 0;
 	rt.type = TokenType::RETURN;
 	this->rpn->push(rt);
 	chunk = new Chunk();
-	return statement();
+	statement();
 }
 
 // helpers
@@ -67,16 +67,15 @@ void Compiler::tokenToChunk(Token token) {
 
 // token specifics
 
-InterpreterResults Compiler::statement() {
-	return expression();
+void Compiler::statement() {
+	expression();
 }
 
-InterpreterResults Compiler::expression() {
+void Compiler::expression() {
 	Token token = popRpn();
 	while (!rpn->empty()) {
 		tokenToChunk(token);
 		token = popRpn();
 	}
 	tokenToChunk(token);
-	return InterpreterResults::OK;
 }

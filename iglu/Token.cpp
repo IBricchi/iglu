@@ -1,0 +1,91 @@
+#include "Token.h"
+
+using namespace std;
+
+string Token::tokenName(TokenType type) {
+	switch (type)
+	{
+	case TokenType::LEFT_PARAN:
+		return "(";
+	case TokenType::RIGHT_PARAN:
+		return ")";
+	case TokenType::LEFT_BRACE:
+		return "{";
+	case TokenType::RIGHT_BRACE:
+		return "}";
+	case TokenType::PLUS:
+		return "+";
+	case TokenType::MINUS:
+		return "-";
+	case TokenType::STAR:
+		return "*";
+	case TokenType::SLASH:
+		return "/";
+	case TokenType::COMMA:
+		return ",";
+	case TokenType::DOT:
+		return ".";
+	case TokenType::SEMICOLON:
+		return ";";
+	case TokenType::ARROW:
+		return "=>";
+	case TokenType::NEGATE:
+		return "(-)";
+	case TokenType::EQUAL:
+		return "=";
+	case TokenType::EQUAL_EQUAL:
+		return "==";
+	case TokenType::BANG:
+		return "!";
+	case TokenType::BANG_EQUAL:
+		return "!=";
+	case TokenType::GREATER:
+		return ">";
+	case TokenType::GREATER_EQUAL:
+		return ">=";
+	case TokenType::LESS:
+		return "<";
+	case TokenType::LESS_EQUAL:
+		return "<=";
+	case TokenType::IDENTIFIER:
+		return "(identifier)";
+	case TokenType::STRING:
+		return "(string)";
+	case TokenType::NUMBER:
+		return "(number)";
+	case TokenType::AND:
+		return "(and)";
+	case TokenType::OR:
+		return "(or)";
+	case TokenType::IF:
+		return "(if)";
+	case TokenType::ELSE:
+		return "(else)";
+	case TokenType::RETURN:
+		return "(return)";
+	case TokenType::TRUE:
+		return "(true)";
+	case TokenType::FALSE:
+		return "(false)";
+	case TokenType::FOR:
+		return "(for)";
+	case TokenType::WHILE:
+		return "(while)";
+	case TokenType::LET:
+		return "(let)";
+	case TokenType::FUN:
+		return "(fun)";
+	case TokenType::NILL:
+		return "(null)";
+	case TokenType::THIS:
+		return "(this)";
+	case TokenType::PARENT:
+		return "(parent)";
+	case TokenType::CHILD_OF:
+		return "(child_of)";
+	case TokenType::ERROR:
+		return "(error)";
+	case TokenType::FILE_END:
+		return "(end of file)";
+	}
+}

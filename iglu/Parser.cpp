@@ -1,5 +1,6 @@
 #include "Parser.h"
 
+#include <iostream>
 #include <stack>
 
 using namespace std;
@@ -11,7 +12,7 @@ Parser::Parser(Scanner* scanner) {
 	this->scanner = scanner;
 }
 
-InterpreterResults Parser::parse() {
+bool Parser::parse() {
 	return statement();
 }
 
@@ -21,57 +22,97 @@ queue<Token>* Parser::getRPN() {
 
 // specific parsers
 
-InterpreterResults Parser::statement() {
-	return expression();
+bool Parser::statement() {
+	bool out = true;
+	rpn = new queue<Token>();
+	for (current = scanner->scanToken(); true; current = scanner->scanToken()) {
+		switch (current.type)
+		{
+		case TokenType::LET:
+			break;
+		default:
+			break;
+		}
+		// TODO! this needs to go into a case statememnt later
+		try{
+			out |= expression(TokenType::SEMICOLON);
+		}
+		catch(Parser::PanicException err){
+			out = false;
+			while (current.type != TokenType::SEMICOLON && current.type != TokenType::FILE_END) {
+				current = scanner->scanToken();
+			}
+		}
+		if (current.type == TokenType::FILE_END) break;
+	}
+	return out;
 }
 
-InterpreterResults Parser::expression() {
-	rpn = new queue<Token>();
+bool Parser::expression(TokenType delimiter) {
+	bool out = true;
 	stack<Token> opp = stack<Token>();
-	for (Token token = scanner->scanToken(); token.type != TokenType::FILE_END; token = scanner->scanToken()) {
-		if (token.presidence == Presidence::PRIMARY){
-			rpn->push(token);
+	for (; current.type != delimiter; current = scanner->scanToken()) {
+		if (current.presidence == Presidence::PRIMARY){
+			rpn->push(current);
 		}
-		else if(token.presidence != Presidence::NONE){
+		else if(current.presidence != Presidence::NONE){
 			if (!opp.empty()) {
-				if (opp.top().presidence == token.presidence && token.leftAssoc) {
+				if (opp.top().presidence == current.presidence && current.leftAssoc) {
 					rpn->push(opp.top());
 					opp.pop();
-					opp.push(token);
+					opp.push(current);
 				}
-				else if (opp.top().presidence > token.presidence) {
+				else if (opp.top().presidence > current.presidence) {
 					do {
 						rpn->push(opp.top());
 						opp.pop();
 					}
-					while (!opp.empty() && (opp.top().presidence > token.presidence || opp.top().presidence == token.presidence && token.leftAssoc));
-					opp.push(token);
+					while (!opp.empty() && (opp.top().presidence > current.presidence || opp.top().presidence == current.presidence && current.leftAssoc));
+					opp.push(current);
 				}
 				else {
-					opp.push(token);
+					opp.push(current);
 				}
 			}
 			else {
-				opp.push(token);
+				opp.push(current);
 			}
 		}
-		else if (token.type == TokenType::LEFT_PARAN) {
-			opp.push(token);
+		else if (current.type == TokenType::LEFT_PARAN) {
+			opp.push(current);
 		}
-		else if (token.type == TokenType::RIGHT_PARAN) {
+		else if (current.type == TokenType::RIGHT_PARAN) {
 			while (opp.top().type != TokenType::LEFT_PARAN) {
 				rpn->push(opp.top());
 				opp.pop();
 			}
 			opp.pop();
 		}
+		else if (current.type == TokenType::FILE_END) {
+			PanicError("Expected '" + Token::tokenName(delimiter) + "' but reached end of file instead.");
+		}
+		else{
+			PanicError("Expected '" + Token::tokenName(delimiter) + "' but found '" + Token::tokenName(current.type) + "' instead.");
+		}
 	}
 	while (!opp.empty()) {
 		rpn->push(opp.top());
 		opp.pop();
 	}
-	return InterpreterResults::OK;
+	// consume delimiter
+	current = scanner->scanToken();
+
+	return out;
 }
 
-// Helpers
+// Errors
+
+const char* Parser::PanicException::what() const throw() {
+	return "Panic Mode Error";
+}
+
+void Parser::PanicError(string message) {
+	cerr << "[Line: " << current.line << "] " << message << endl;
+	throw Parser::PanicException();
+}
 

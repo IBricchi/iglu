@@ -24,6 +24,7 @@ public:
 	std::map<std::string, Chunk*> properties;
 	std::vector<Object::unoFn> unoFns;
 	std::vector<Object::binFn> binFns;
+	int checkType(std::string);
 	Object();
 	~Object();
 	void* getVal();
