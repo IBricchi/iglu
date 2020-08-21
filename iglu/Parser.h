@@ -21,15 +21,17 @@ private:
 		const char* what() const throw();
 	};
 	void PanicError(std::string);
+	void NonPanicError(std::string);
 
 	// specific parsers
-	bool statement();
-	bool expression(TokenType);
+	void statement();
+	void expression(TokenType);
 
 
 public:
+	bool hadError;
 	Parser(Scanner*);
 	std::queue<Token>* getRPN();
-	bool parse();
+	void parse();
 };
 

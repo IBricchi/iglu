@@ -39,7 +39,8 @@ static void repl() {
 		Scanner scanner(&line[0]);
 		Parser parser(&scanner);
 		Compiler compiler{};
-		if (parser.parse()) {
+		parser.parse();
+		if (!parser.hadError) {
 			compiler.compile(parser.getRPN());
 			vm.interpret(compiler.getChunk());
 		}
