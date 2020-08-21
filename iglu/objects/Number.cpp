@@ -1,10 +1,11 @@
 #include "Number.h"
+#include "Error.h"
 
 using namespace std;
 
 Number::Number(float val) : Object{} {
+	this->val = val;
 	type = "Number";
-	this->val = new float(val);
 
 	addFnProperty("__negate__", (Object::unoFn) &Number::negate);
 
@@ -15,30 +16,33 @@ Number::Number(float val) : Object{} {
 }
 
 Object* Number::negate() {
-	float aVal = *(float*)val;
-	return new Number(-aVal);
+	return new Number(-val);
 }
 
 Object* Number::add(Object* b) {
-	float aVal = *(float*)val;
-	float bVal = *(float*)b->getVal();
-	return new Number(aVal + bVal);
+	if(!b->checkType("Number") == 0) return new Error("Number does not support adding wtih " + b->getType() + ".");
+	float bVal = ((Number*)b)->getVal();
+	return new Number(val + bVal);
 }
 
 Object* Number::sub(Object* b) {
-	float aVal = *(float*)val;
-	float bVal = *(float*)b->getVal();
-	return new Number(aVal - bVal);
+	if (!b->checkType("Number") == 0) return new Error("Number does not support being subtracted by " + b->getType() + ".");
+	float bVal = ((Number*)b)->getVal();
+	return new Number(val - bVal);
 }
 
 Object* Number::mult(Object* b) {
-	float aVal = *(float*)val;
-	float bVal = *(float*)b->getVal();
-	return new Number(aVal * bVal);
+	if (!b->checkType("Number") == 0) return new Error("Number does not support multiplying by " + b->getType() + ".");
+	float bVal = ((Number*)b)->getVal();
+	return new Number(val * bVal);
 }
 
 Object* Number::div(Object* b) {
-	float aVal = *(float*)val;
-	float bVal = *(float*)b->getVal();
-	return new Number(aVal / bVal);
+	if (!b->checkType("Number") == 0) return new Error("Number does not support dividing by  " + b->getType() + ".");
+	float bVal = ((Number*)b)->getVal();
+	return new Number(val / bVal);
+}
+
+float Number::getVal() {
+	return val;
 }

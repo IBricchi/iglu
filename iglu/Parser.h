@@ -1,6 +1,7 @@
 #pragma once
 
 #include <queue>
+#include <string>
 #include <exception>
 
 #include "common.h"
@@ -27,6 +28,9 @@ private:
 	void statement();
 	void expression(TokenType);
 
+	// helpers
+	std::string getName(Token);
+	std::string getName(TokenType);
 
 public:
 	bool hadError;

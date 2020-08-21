@@ -2,12 +2,13 @@
 
 #include "../common.h"
 
-#include "../Chunk.h"
 #include "../Object.h"
 
 class Number : public Object
 {
 private:
+	float val;
+
 	Object* negate();
 	Object* add(Object*);
 	Object* sub(Object*);
@@ -15,4 +16,6 @@ private:
 	Object* div(Object*);
 public:
 	Number(float);
+
+	float getVal();
 };

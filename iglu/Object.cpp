@@ -9,7 +9,6 @@ Object::Object() {
 }
 
 Object::~Object() {
-	delete val;
 	for (auto i = properties.begin(); i != properties.end(); i++) {
 		delete i->second;
 	}
@@ -39,6 +38,11 @@ void Object::addFnProperty(string prop, Object::binFn fn) {
 	properties[prop] = generateFnChunk(fn);
 }
 
-void* Object::getVal() {
-	return val;
+string Object::getType() {
+	return type;
+}
+
+int Object::checkType(string type) {
+	if(this->type == type) return 0;
+	return -1;
 }

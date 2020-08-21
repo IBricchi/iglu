@@ -52,12 +52,12 @@ void Parser::expression(TokenType delimiter) {
 	bool expectOper = false;
 	for (; current.type != delimiter; current = scanner->scanToken()) {
 		if (current.presidence == Presidence::PRIMARY){
-			if(expectOper) NonPanicError("Expected an operator, found '" + Token::tokenName(current.type) + "'.");
+			if(expectOper) NonPanicError("Expected an operator, found '" + getName(current.type) + "'.");
 			expectOper = true;
 			rpn->push(current);
 		}
 		else if(current.presidence != Presidence::NONE){
-			if(current.presidence != Presidence::UNARY && !expectOper) NonPanicError("Expected value or unary operator, found '" + Token::tokenName(current.type) + "'.");
+			if(current.presidence != Presidence::UNARY && !expectOper) NonPanicError("Expected value or unary operator, found '" + getName(current.type) + "'.");
 			expectOper = false;
 			if (!opp.empty()) {
 				if (opp.top().presidence == current.presidence && current.leftAssoc) {
@@ -82,12 +82,12 @@ void Parser::expression(TokenType delimiter) {
 			}
 		}
 		else if (current.type == TokenType::LEFT_PARAN) {
-			if (expectOper) NonPanicError("Expected an operator, found '" + Token::tokenName(current.type) + "'.");
+			if (expectOper) NonPanicError("Expected an operator, found '" + getName(current.type) + "'.");
 			expectOper = false;
 			opp.push(current);
 		}
 		else if (current.type == TokenType::RIGHT_PARAN) {
-			if (expectOper) NonPanicError("Expected an operator, found '" + Token::tokenName(current.type) + "'.");
+			if (expectOper) NonPanicError("Expected an operator, found '" + getName(current.type) + "'.");
 			expectOper = true;
 			while (opp.top().type != TokenType::LEFT_PARAN) {
 				rpn->push(opp.top());
@@ -96,10 +96,10 @@ void Parser::expression(TokenType delimiter) {
 			opp.pop();
 		}
 		else if (current.type == TokenType::FILE_END) {
-			PanicError("Expected '" + Token::tokenName(delimiter) + "' but reached end of file instead.");
+			PanicError("Expected '" + getName(delimiter) + "' but reached end of file instead.");
 		}
 		else{
-			PanicError("Expected '" + Token::tokenName(delimiter) + "' but found '" + Token::tokenName(current.type) + "' instead.");
+			PanicError("Expected '" + getName(delimiter) + "' but found '" + getName(current.type) + "' instead.");
 		}
 	}
 	while (!opp.empty()) {
@@ -124,4 +124,59 @@ inline void Parser::PanicError(string message) {
 inline void Parser::NonPanicError(string message) {
 	hadError = true;
 	cerr << "[Line: " << current.line << "] " << message << endl;
+}
+
+// Helpers
+
+inline string Parser::getName(Token token) {
+	switch (token.type)
+	{
+	case TokenType::LEFT_PARAN:
+	case TokenType::RIGHT_PARAN:
+	case TokenType::LEFT_BRACE:
+	case TokenType::RIGHT_BRACE:
+	case TokenType::PLUS:
+	case TokenType::MINUS:
+	case TokenType::STAR:
+	case TokenType::SLASH:
+	case TokenType::COMMA:
+	case TokenType::DOT:
+	case TokenType::SEMICOLON:
+	case TokenType::ARROW:
+	case TokenType::NEGATE:
+	case TokenType::EQUAL:
+	case TokenType::EQUAL_EQUAL:
+	case TokenType::BANG:
+	case TokenType::BANG_EQUAL:
+	case TokenType::GREATER:
+	case TokenType::GREATER_EQUAL:
+	case TokenType::LESS:
+	case TokenType::LESS_EQUAL:
+	case TokenType::AND:
+	case TokenType::OR:
+	case TokenType::IF:
+	case TokenType::ELSE:
+	case TokenType::RETURN:
+	case TokenType::TRUE:
+	case TokenType::FALSE:
+	case TokenType::FOR:
+	case TokenType::WHILE:
+	case TokenType::LET:
+	case TokenType::FUN:
+	case TokenType::NILL:
+	case TokenType::THIS:
+	case TokenType::PARENT:
+	case TokenType::CHILD_OF:
+	case TokenType::ERROR:
+	case TokenType::FILE_END:
+		return Token::tokenName(token.type);
+	case TokenType::IDENTIFIER:
+	case TokenType::STRING:
+	case TokenType::NUMBER:
+		return string(token.start, token.start + token.length);
+	}
+}
+
+inline string Parser::getName(TokenType type) {
+	return Token::tokenName(type);
 }

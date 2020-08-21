@@ -2,6 +2,9 @@
 
 #include <iostream>
 
+#include "objects/Number.h"
+#include "objects/Error.h"
+
 using namespace std;
 
 // API
@@ -10,9 +13,10 @@ VM::VM() {
 	chunks = stack<Chunk*>();
 	pc = stack<uint8_t*>();
 	objStack = stack<Object*>();
+	hadError = false;
 }
 
-InterpreterResults VM::interpret(Chunk* chunk) {
+void VM::interpret(Chunk* chunk) {
 	chunks.push(chunk);
 	pc.push(&chunk->code[0]);
 	return run();
@@ -21,8 +25,8 @@ InterpreterResults VM::interpret(Chunk* chunk) {
 
 // control
 
-InterpreterResults VM::run() {
-	InterpreterResults out = InterpreterResults::OK;
+void VM::run() {
+	hadError = false;
 	while (!chunks.empty()) {
 		OpCode instruction = (OpCode)readByte();
 		switch (instruction)
@@ -36,46 +40,31 @@ InterpreterResults VM::run() {
 		case OpCode::NEGATE:
 		{
 			Object* a = topStack();
-			if (!callFunction(a, "__negate__")) {
-				out = InterpreterResults::RUN_ERR;
-				runtimeError("No overload for the '(-)' operator exsits for type: " + a->type + ".");
-			}
+			if (!callFunction(a, "__negate__")) runtimeError("No overload for the '(-)' operator exsits for type: " + a->getType() + ".");
 			break;
 		}
 		case OpCode::PLUS:
 		{
 			Object* a = topStack();
-			if (!callFunction(a, "__plus__")) {
-				out = InterpreterResults::RUN_ERR;
-				runtimeError("No overload for the '+' operator exsits for type: " + a->type + ".");
-			}
+			if (!callFunction(a, "__plus__")) runtimeError("No overload for the '+' operator exsits for type: " + a->getType() + ".");
 			break;
 		}
 		case OpCode::MINUS:
 		{
 			Object* a = topStack();
-			if (!callFunction(a, "__minus__")) {
-				out = InterpreterResults::RUN_ERR;
-				runtimeError("No overload for the '-' operator exsits for type: " + a->type + ".");
-			}
+			if (!callFunction(a, "__minus__")) runtimeError("No overload for the '-' operator exsits for type: " + a->getType() + ".");
 			break;
 		}
 		case OpCode::STAR:
 		{
 			Object* a = topStack();
-			if (!callFunction(a, "__star__")) {
-				out = InterpreterResults::RUN_ERR;
-				runtimeError("No overload for the '*' operator exsits for type: " + a->type + ".");
-			}
+			if (!callFunction(a, "__star__")) runtimeError("No overload for the '*' operator exsits for type: " + a->getType() + ".");
 			break;
 		}
 		case OpCode::SLASH:
 		{
 			Object* a = topStack();
-			if (!callFunction(a, "__slash__")) {
-				out = InterpreterResults::RUN_ERR;
-				runtimeError("No overload for the '/' operator exsits for type: " + a->type + ".");
-			}
+			if (!callFunction(a, "__slash__")) runtimeError("No overload for the '/' operator exsits for type: " + a->getType() + ".");
 			break;
 		}
 		case OpCode::UNARY_FUNC_CALL:
@@ -83,6 +72,10 @@ InterpreterResults VM::run() {
 			Object* a = popStack();
 			uint8_t fi = readByte();
 			Object* b = (a->*a->unoFns[fi])();
+
+			// check if error object is returned
+			if (b->checkType("Error") >= 0) runtimeErrorObject(b);
+
 			pushStack(b);
 			break;
 		}
@@ -92,6 +85,10 @@ InterpreterResults VM::run() {
 			Object* a = popStack();
 			uint8_t fi = readByte();
 			Object* c = (a->*(a->binFns[fi]))(b);
+
+			// check if error object is returned
+			if (c->checkType("Error") >= 0) runtimeErrorObject(c);
+			
 			pushStack(c);
 			break;
 		}
@@ -100,8 +97,7 @@ InterpreterResults VM::run() {
 			break;
 		}
 	}
-	cout << *(float*)objStack.top()->getVal() << endl;
-	return out;
+	cout << ((Number*)objStack.top())->getVal() << endl;
 }
 
 // helpers
@@ -148,8 +144,17 @@ bool VM::callFunction(Object* obj, string name) {
 }
 
 void VM::runtimeError(string message) {
+	hadError = true;
+
+	// print error message
 	int line = chunks.top()->lines[pc.top() - &chunks.top()->code[0] - 1];
 	cerr << "[Line: " << line << "] " << message << endl;
+	
+	// clear stacks
 	while (!chunks.empty()) chunks.pop();
 	while (!pc.empty()) pc.pop();
+}
+
+inline void VM::runtimeErrorObject(Object* errorObj) {
+	runtimeError(((Error*)errorObj)->getMessage());
 }

@@ -11,12 +11,6 @@
 #define FRAME_MAX 64;
 #define STACK_MAX (FRAME_MAX * (UINT8_MAX + 1));
 
-enum struct InterpreterResults {
-	OK,
-	COMP_ERR,
-	RUN_ERR
-};
-
 class VM
 {
 private:
@@ -33,12 +27,16 @@ private:
 	void intoChunk(Chunk*);
 	void leaveChunk();
 	bool callFunction(Object*, std::string);
+	
 	void runtimeError(std::string);
+	void runtimeErrorObject(Object*);
 
 	//important
-	InterpreterResults run();
+	void run();
 public:
+	bool hadError;
+
 	VM();
-	InterpreterResults interpret(Chunk*);
+	void interpret(Chunk*);
 };
 
