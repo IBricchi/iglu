@@ -30,9 +30,9 @@ void Parser::statement() {
 		switch (current.type)
 		{
 		case TokenType::LET:
-			
+			current = scanner->scanToken();
 			// get expression
-			tryExpression(TokenType::SEMICOLON);
+			tryExpression(TokenType::SEMICOLON, true);
 
 			break;
 		default:
@@ -46,10 +46,15 @@ void Parser::statement() {
 	}
 }
 
-void Parser::expression(TokenType delimiter) {
+inline void Parser::expression(TokenType delimiter) {
+	expression(delimiter, false);
+}
+
+void Parser::expression(TokenType delimiter, bool assignmentExpression) {
 	stack<Token> opp = stack<Token>();
 	bool expectOper = false;
 	bool allowAssignment = true;
+	bool isAssignment = false;
 	for (; current.type != delimiter; current = scanner->scanToken()) {
 		// check if primary presidence (identifier/constant)
 		if (current.presidence == Presidence::PRIMARY){
@@ -66,7 +71,10 @@ void Parser::expression(TokenType delimiter) {
 			// report error if operator was not expected (unary opperators are allowed)
 			if (current.presidence != Presidence::UNARY && !expectOper) nonPanicError("Expected identifier, constant, or unary operator, found '" + getName(current) + "'.");
 			// report error if assignment not allowed
-			if (current.presidence == Presidence::ASSIGNMENT && !allowAssignment) nonPanicError("Cannot assign to the left hand side of '=' operator.");
+			if (current.presidence == Presidence::ASSIGNMENT){
+				if(!allowAssignment) nonPanicError("Cannot assign to the left hand side of '=' operator.");
+				else isAssignment = true;
+			}
 
 			// update if expectation values 
 			expectOper = false;
@@ -143,8 +151,12 @@ void Parser::expression(TokenType delimiter) {
 		rpn->push(opp.top());
 		opp.pop();
 	}
+
 	// consume delimiter
 	current = scanner->scanToken();
+	
+	// report error if assignment was required but not presented
+	if(assignmentExpression && !isAssignment) nonPanicError("Expected valid '=' operator in expression, not found.");
 }
 
 // Errors
@@ -229,9 +241,13 @@ inline string Parser::getName(TokenType type) {
 	return Token::tokenName(type);
 }
 
-void Parser::tryExpression(TokenType delimiter) {
+inline void Parser::tryExpression(TokenType delimiter) {
+	tryExpression(delimiter, false);
+}
+
+void Parser::tryExpression(TokenType delimiter, bool assignmentExpression) {
 	try {
-		expression(delimiter);
+		expression(delimiter, assignmentExpression);
 	}
 	catch (Parser::PanicException err) {
 		reachDelimiter(delimiter);

@@ -29,11 +29,13 @@ private:
 	// specific parsers
 	void statement();
 	void expression(TokenType);
+	void expression(TokenType, bool);
 
 	// helpers
 	std::string getName(Token);
 	std::string getName(TokenType);
 	void tryExpression(TokenType);
+	void tryExpression(TokenType, bool);
 
 public:
 	bool hadError;
