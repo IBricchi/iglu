@@ -59,6 +59,9 @@ void Compiler::tokenToChunk(Token token) {
 		chunk->writeOpByte(token.line, OpCode::OBJECT, chunk->objects.size() - 1);
 		break;
 	}
+	case TokenType::LET: {
+
+	}
 	case TokenType::RETURN:
 		chunk->writeOp(token.line, OpCode::RETURN);
 		break;

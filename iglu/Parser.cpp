@@ -30,9 +30,12 @@ void Parser::statement() {
 		switch (current.type)
 		{
 		case TokenType::LET:
+			// insert let token into rpn
+			rpn->push(current);
+
 			current = scanner->scanToken();
-			// get expression
-			tryExpression(TokenType::SEMICOLON, true);
+			// get assignment expression
+			tryExpression(TokenType::SEMICOLON, ExpressionType::VAR_DEC);
 
 			break;
 		default:
@@ -46,15 +49,13 @@ void Parser::statement() {
 	}
 }
 
-inline void Parser::expression(TokenType delimiter) {
-	expression(delimiter, false);
-}
-
-void Parser::expression(TokenType delimiter, bool assignmentExpression) {
+void Parser::expression(TokenType delimiter, ExpressionType type) {
 	stack<Token> opp = stack<Token>();
+	
+	// values for validating expression
 	bool expectOper = false;
 	bool allowAssignment = true;
-	bool isAssignment = false;
+
 	for (; current.type != delimiter; current = scanner->scanToken()) {
 		// check if primary presidence (identifier/constant)
 		if (current.presidence == Presidence::PRIMARY){
@@ -72,13 +73,16 @@ void Parser::expression(TokenType delimiter, bool assignmentExpression) {
 			if (current.presidence != Presidence::UNARY && !expectOper) nonPanicError("Expected identifier, constant, or unary operator, found '" + getName(current) + "'.");
 			// report error if assignment not allowed
 			if (current.presidence == Presidence::ASSIGNMENT){
-				if(!allowAssignment) nonPanicError("Cannot assign to the left hand side of '=' operator.");
-				else isAssignment = true;
+				if(type != ExpressionType::VAR_DEC && !allowAssignment) nonPanicError("Cannot assign to the left hand side of '=' operator.");
+				else if(!allowAssignment) nonPanicError("Cannot define to the left hand side of '=' operator.");
 			}
 
 			// update if expectation values 
 			expectOper = false;
-			if (current.presidence < Presidence::CALL || (current.type != TokenType::IDENTIFIER && current.type != TokenType::DOT)) allowAssignment = false;
+			if (current.presidence < Presidence::CALL ||
+					type != ExpressionType::VAR_DEC && (current.type != TokenType::IDENTIFIER && current.type != TokenType::DOT) ||
+					type == ExpressionType::VAR_DEC && (current.type != TokenType::IDENTIFIER))
+				allowAssignment = false;
 
 			// if operator stack is empty push operator directly
 			if (opp.empty()) {
@@ -154,9 +158,6 @@ void Parser::expression(TokenType delimiter, bool assignmentExpression) {
 
 	// consume delimiter
 	current = scanner->scanToken();
-	
-	// report error if assignment was required but not presented
-	if(assignmentExpression && !isAssignment) nonPanicError("Expected valid '=' operator in expression, not found.");
 }
 
 // Errors
@@ -241,13 +242,9 @@ inline string Parser::getName(TokenType type) {
 	return Token::tokenName(type);
 }
 
-inline void Parser::tryExpression(TokenType delimiter) {
-	tryExpression(delimiter, false);
-}
-
-void Parser::tryExpression(TokenType delimiter, bool assignmentExpression) {
+void Parser::tryExpression(TokenType delimiter, ExpressionType type) {
 	try {
-		expression(delimiter, assignmentExpression);
+		expression(delimiter, type);
 	}
 	catch (Parser::PanicException err) {
 		reachDelimiter(delimiter);

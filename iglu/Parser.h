@@ -26,16 +26,21 @@ private:
 	void panicError(std::string);
 	void nonPanicError(std::string);
 
-	// specific parsers
+	// statement controls
 	void statement();
-	void expression(TokenType);
-	void expression(TokenType, bool);
+
+	// expression controls
+	enum struct ExpressionType {
+		NONE,
+		VAR_DEC
+	};
+
+	void expression(TokenType, ExpressionType = ExpressionType::NONE);
 
 	// helpers
 	std::string getName(Token);
 	std::string getName(TokenType);
-	void tryExpression(TokenType);
-	void tryExpression(TokenType, bool);
+	void tryExpression(TokenType, ExpressionType = ExpressionType::NONE);
 
 public:
 	bool hadError;

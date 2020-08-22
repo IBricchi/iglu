@@ -17,6 +17,7 @@ private:
 	std::stack<Chunk*> chunks;
 	std::stack<Object*> objStack;
 	std::stack<uint8_t*> pc;
+	//std::vector<std::pair<std::string, Object*>> variables;
 	
 	//helpers
 	uint8_t readByte();

@@ -27,4 +27,3 @@ public:
 	Chunk* getChunk();
 	void compile(std::queue<Token>*);
 };
-
