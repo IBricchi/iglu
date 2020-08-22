@@ -75,7 +75,7 @@ char Scanner::advance() {
 }
 
 bool Scanner::match(char c) {
-	if(!peek()==c) return false;
+	if(peek()!=c) return false;
 	advance();
 	return true;
 }

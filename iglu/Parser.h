@@ -21,8 +21,10 @@ private:
 	struct PanicException: public std::exception {
 		const char* what() const throw();
 	};
-	void PanicError(std::string);
-	void NonPanicError(std::string);
+	void consume(TokenType);
+	void reachDelimiter(TokenType);
+	void panicError(std::string);
+	void nonPanicError(std::string);
 
 	// specific parsers
 	void statement();
@@ -31,6 +33,7 @@ private:
 	// helpers
 	std::string getName(Token);
 	std::string getName(TokenType);
+	void tryExpression(TokenType);
 
 public:
 	bool hadError;
