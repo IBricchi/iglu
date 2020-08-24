@@ -27,6 +27,7 @@ private:
 
 	Object* popStack();
 	Object* topStack();
+	Object* stackAt(int);
 
 	void pushStack(Object*);
 	void intoChunk(Chunk*);

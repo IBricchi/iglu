@@ -63,22 +63,22 @@ void VM::run() {
 			break;
 		}
 		case OpCode::PLUS:{
-			Object* a = topStack();
+			Object* a = stackAt(1);
 			if (!callFunction(a, "__plus__")) runtimeError("No overload for the '+' operator exsits for type: " + a->getType() + ".");
 			break;
 		}
 		case OpCode::MINUS:{
-			Object* a = topStack();
+			Object* a = stackAt(1);
 			if (!callFunction(a, "__minus__")) runtimeError("No overload for the '-' operator exsits for type: " + a->getType() + ".");
 			break;
 		}
 		case OpCode::STAR:{
-			Object* a = topStack();
+			Object* a = stackAt(1);
 			if (!callFunction(a, "__star__")) runtimeError("No overload for the '*' operator exsits for type: " + a->getType() + ".");
 			break;
 		}
 		case OpCode::SLASH:{
-			Object* a = topStack();
+			Object* a = stackAt(1);
 			if (!callFunction(a, "__slash__")) runtimeError("No overload for the '/' operator exsits for type: " + a->getType() + ".");
 			break;
 		}
@@ -126,27 +126,30 @@ void VM::run() {
 			Object* a = popStack();
 			string name = a->dereference();
 			
-			if(variables.find(name) == variables.end()) runtimeError("Cannot assign to undeclared variable '" + name + "'.");
-			else {
-				b->addReference(name);
-				a->removeReference(name);
-
-				vector<Object*>* varVec = &variables[name];
-				(*varVec)[varVec->size() - 1] = b;
-
-				b->removeImortality();
-				a->removeImortality();
+			if(variables.find(name) == variables.end()){
+				runtimeError("Cannot assign to undeclared variable '" + name + "'.");
+				break;
 			}
+			b->addReference(name);
+			a->removeReference(name);
+
+			vector<Object*>* varVec = &variables[name];
+			(*varVec)[varVec->size() - 1] = b;
+
+			b->removeImortality();
+			a->removeImortality();
+			
 			break;
 		}
 		case OpCode::GET_VAR: {
 			string* name = readConstant().as.String;
-			if(variables.find(*name) == variables.end()) runtimeError("Variable '" + *name + "' has not been declared.");
-			else {
-				pushStack(variables[*name].back());
-				topStack()->reference(*name);
-				topStack()->giveImortality();
+			if(variables.find(*name) == variables.end()){
+				runtimeError("Variable '" + *name + "' has not been declared.");
+				break;
 			}
+			pushStack(variables[*name].back());
+			topStack()->reference(*name);
+			topStack()->giveImortality();
 			break;
 		}
 		case OpCode::RETURN:
@@ -179,6 +182,10 @@ inline Object* VM::popStack() {
 
 inline Object* VM::topStack() {
 	return stack.back();
+}
+
+inline Object* VM::stackAt(int n) {
+	return *(stack.end() - 1 - n);
 }
 
 inline void VM::pushStack(Object* obj) {
