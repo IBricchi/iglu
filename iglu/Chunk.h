@@ -24,9 +24,10 @@ enum struct OpCode {
 	UNARY_FUNC_CALL,
 	BINARY_FUNC_CALL,
 
-	// variable declearations
+	// variables
 	DECLARE_VAR,
 	DEFINE_VAR,
+	GET_VAR,
 
 	// return
 	RETURN

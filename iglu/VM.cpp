@@ -46,7 +46,7 @@ void VM::run() {
 				break;
 			}
 			case ConstType::NUMBER: {
-				stack.push_back(new Number(constant.val.Number));
+				stack.push_back(new Number(constant.as.Number));
 				stack.back()->giveImortality();
 				break;
 			}
@@ -57,44 +57,37 @@ void VM::run() {
 			}
 			break;
 		}
-		case OpCode::OBJECT:
-		{
+		case OpCode::OBJECT:{
 			Object* obj = readObject();
 			stack.push_back(obj);
 			break;
 		}
-		case OpCode::NEGATE:
-		{
+		case OpCode::NEGATE:{
 			Object* a = topStack();
 			if (!callFunction(a, "__negate__")) runtimeError("No overload for the '(-)' operator exsits for type: " + a->getType() + ".");
 			break;
 		}
-		case OpCode::PLUS:
-		{
+		case OpCode::PLUS:{
 			Object* a = topStack();
 			if (!callFunction(a, "__plus__")) runtimeError("No overload for the '+' operator exsits for type: " + a->getType() + ".");
 			break;
 		}
-		case OpCode::MINUS:
-		{
+		case OpCode::MINUS:{
 			Object* a = topStack();
 			if (!callFunction(a, "__minus__")) runtimeError("No overload for the '-' operator exsits for type: " + a->getType() + ".");
 			break;
 		}
-		case OpCode::STAR:
-		{
+		case OpCode::STAR:{
 			Object* a = topStack();
 			if (!callFunction(a, "__star__")) runtimeError("No overload for the '*' operator exsits for type: " + a->getType() + ".");
 			break;
 		}
-		case OpCode::SLASH:
-		{
+		case OpCode::SLASH:{
 			Object* a = topStack();
 			if (!callFunction(a, "__slash__")) runtimeError("No overload for the '/' operator exsits for type: " + a->getType() + ".");
 			break;
 		}
-		case OpCode::UNARY_FUNC_CALL:
-		{
+		case OpCode::UNARY_FUNC_CALL:{
 			Object* a = popStack();
 			uint8_t fi = readByte();
 			Object* b = (a->*a->unoFns[fi])();
@@ -105,8 +98,7 @@ void VM::run() {
 			pushStack(b);
 			break;
 		}
-		case OpCode::BINARY_FUNC_CALL:
-		{
+		case OpCode::BINARY_FUNC_CALL:{
 			Object* b = popStack();
 			Object* a = popStack();
 			uint8_t fi = readByte();
@@ -118,12 +110,28 @@ void VM::run() {
 			pushStack(c);
 			break;
 		}
+		case OpCode::DECLARE_VAR:{
+			string* name = readConstant().as.String;
+			Object* nullObj = new Null();
+			nullObj->addReference(*name);
+			if(variables.find(*name) == variables.end()) variables.emplace(*name, vector<Object*>{nullObj});
+			else variables[*name].push_back(nullObj);
+			break;
+		}
+		case OpCode::GET_VAR: {
+			string* name = readConstant().as.String;
+			if(variables.find(*name) == variables.end()) runtimeError("Variable '" + *name + "' has not been declared.");
+			pushStack(variables[*name].back());
+			break;
+		}
 		case OpCode::RETURN:
 			leaveChunk();
 			break;
 		}
 	}
-	cout << ((Number*)stack.back())->getVal() << endl;
+	cout << stack.back()->getType();
+	if(0 == stack.back()->checkType("Number")) cout << ": " << ((Number*)stack.back())->getVal();
+	cout << endl;
 }
 
 // helpers

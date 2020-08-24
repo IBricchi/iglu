@@ -2,7 +2,7 @@
 
 using namespace std;
 
-Error::Error(string message) {
+Error::Error(string message) : Object{} {
 	type = "Error";
 	this->message = message;
 }

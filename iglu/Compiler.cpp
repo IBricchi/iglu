@@ -67,14 +67,18 @@ void Compiler::tokenToChunk(Token token) {
 	case TokenType::LET: {
 		Token var = frontRpn();
 		string varName = string(var.start, var.start + var.length);
-		chunk.objects.push_back(new Null());
-		chunk.objects.back()->giveImortality();
-		chunk.writeOpByte(token.line, OpCode::DECLARE_VAR, chunk.variable.size() - 1);
+		Constant name = varName;
+		chunk.constants.push_back(name);
+		chunk.writeOpByte(token.line, OpCode::DECLARE_VAR, chunk.constants.size() - 1);
 		break;
 	}
-	//case TokenType::IDENTIFIER: {
-	//	chunk.writeOpByte(token.line, OpCode::GET_VAR, )
-	//}
+	case TokenType::IDENTIFIER: {
+		string varName = string(token.start, token.start + token.length);
+		Constant name = varName;
+		chunk.constants.push_back(name);
+		chunk.writeOpByte(token.line, OpCode::GET_VAR, chunk.constants.size() - 1);
+		break;
+	}
 	case TokenType::RETURN:
 		chunk.writeOp(token.line, OpCode::RETURN);
 		break;

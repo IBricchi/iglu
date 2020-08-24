@@ -18,6 +18,8 @@ private:
 	std::vector<Chunk*> chunks;
 	std::vector<Object*> stack;
 	std::vector<uint8_t*> pc;
+
+	std::unordered_map<std::string, std::vector<Object*>> variables;
 	
 	//helpers
 	uint8_t readByte();
