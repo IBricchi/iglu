@@ -1,5 +1,6 @@
 #include "Compiler.h"
 
+#include "Constant.h"
 #include "objects/Number.h"
 #include "objects/Null.h"
 
@@ -58,11 +59,9 @@ void Compiler::tokenToChunk(Token token) {
 		break;
 	case TokenType::NUMBER: {
 		string strVal = string(token.start, token.start + token.length);
-		float val = stof(strVal);
-		Object* num = new Number(val);
-		num->giveImortality();
-		chunk.objects.push_back(num);
-		chunk.writeOpByte(token.line, OpCode::OBJECT, chunk.objects.size() - 1);
+		Constant num = stof(strVal);
+		chunk.constants.push_back(num);
+		chunk.writeOpByte(token.line, OpCode::CONSTANT, chunk.constants.size() - 1);
 		break;
 	}
 	case TokenType::LET: {

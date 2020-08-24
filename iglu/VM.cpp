@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "objects/Number.h"
+#include "objects/Null.h"
 #include "objects/Error.h"
 
 using namespace std;
@@ -31,6 +32,31 @@ void VM::run() {
 		OpCode instruction = (OpCode)readByte();
 		switch (instruction)
 		{
+		case OpCode::CONSTANT:{
+			Constant constant = readConstant();
+			switch (constant.type)
+			{
+			case ConstType::NILL: {
+				stack.push_back(new Null());
+				stack.back()->giveImortality();
+				break;
+			}
+			case ConstType::BOOL: {
+				// TODO! add bools
+				break;
+			}
+			case ConstType::NUMBER: {
+				stack.push_back(new Number(constant.val.Number));
+				stack.back()->giveImortality();
+				break;
+			}
+			case ConstType::STRING: {
+				// TODO! add strings
+				break;
+			}
+			}
+			break;
+		}
 		case OpCode::OBJECT:
 		{
 			Object* obj = readObject();
@@ -104,6 +130,10 @@ void VM::run() {
 
 inline uint8_t VM::readByte() {
 	return *(pc.back()++);
+}
+
+inline Constant VM::readConstant() {
+	return chunks.back()->constants[*(pc.back()++)];
 }
 
 inline Object* VM::readObject() {

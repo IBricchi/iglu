@@ -6,9 +6,11 @@
 #include "common.h"
 
 #include "Object.h"
+#include "Constant.h"
 
 enum struct OpCode {
 	// objects
+	CONSTANT,
 	OBJECT,
 	
 	// arithmetic
@@ -34,6 +36,7 @@ struct Chunk
 {
 	std::vector<uint8_t> code;
 	std::vector<int> lines;
+	std::vector<Constant> constants;
 	std::vector<Object*> objects;
 	std::unordered_map<std::string, uint8_t> variable;
 	Chunk();

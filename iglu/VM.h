@@ -7,6 +7,7 @@
 
 #include "Chunk.h"
 #include "Object.h"
+#include "Constant.h"
 
 #define FRAME_MAX 64;
 #define STACK_MAX (FRAME_MAX * (UINT8_MAX + 1));
@@ -20,9 +21,12 @@ private:
 	
 	//helpers
 	uint8_t readByte();
+	Constant readConstant();
 	Object* readObject();
+
 	Object* popStack();
 	Object* topStack();
+
 	void pushStack(Object*);
 	void intoChunk(Chunk*);
 	void leaveChunk();
