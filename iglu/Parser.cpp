@@ -1,37 +1,40 @@
 #include "Parser.h"
 
 #include <iostream>
-#include <stack>
+#include <vector>
 
 using namespace std;
 
 // API
 
 Parser::Parser(Scanner* scanner) {
-	hadError = false;
-	this->rpn = nullptr;
 	this->scanner = scanner;
+	current = Token();
+	rpn = queue<Token>();
+	hadError = false;
 }
 
 void Parser::parse() {
 	hadError = false;
-	statement();
+	while (!scanner->isAtEnd()) {
+		statement();
+	}
 }
 
 queue<Token>* Parser::getRPN() {
-	return rpn;
+	return &rpn;
 }
 
 // specific parsers
 
 void Parser::statement() {
-	rpn = new queue<Token>();
+	rpn = queue<Token>();
 	for (current = scanner->scanToken(); true; current = scanner->scanToken()) {
 		switch (current.type)
 		{
 		case TokenType::LET:
 			// insert let token into rpn
-			rpn->push(current);
+			rpn.push(current);
 
 			current = scanner->scanToken();
 			// get assignment expression
@@ -50,7 +53,7 @@ void Parser::statement() {
 }
 
 void Parser::expression(TokenType delimiter, ExpressionType type) {
-	stack<Token> opp = stack<Token>();
+	vector<Token> opp = vector<Token>();
 	
 	// values for validating expression
 	bool expectOper = false;
@@ -65,7 +68,7 @@ void Parser::expression(TokenType delimiter, ExpressionType type) {
 			expectOper = true;
 			if(current.type != TokenType::IDENTIFIER) allowAssignment = false;
 
-			rpn->push(current);
+			rpn.push(current);
 		}
 		// check if presidence is for an operator
 		else if(current.presidence != Presidence::NONE){
@@ -86,28 +89,28 @@ void Parser::expression(TokenType delimiter, ExpressionType type) {
 
 			// if operator stack is empty push operator directly
 			if (opp.empty()) {
-				opp.push(current);
+				opp.push_back(current);
 			}
 			else {
 				// deal with left associative operators and equal presidence properly
-				if (opp.top().presidence == current.presidence && current.leftAssoc) {
-					rpn->push(opp.top());
-					opp.pop();
-					opp.push(current);
+				if (opp.back().presidence == current.presidence && current.leftAssoc) {
+					rpn.push(opp.back());
+					opp.pop_back();
+					opp.push_back(current);
 				}
 				// if next operator has lower presicidence than top of opperator stack, clear opperator stack until
 				// opperator stack contains lower (or equal if right associative operator) operator on top.
-				else if (opp.top().presidence > current.presidence) {
+				else if (opp.back().presidence > current.presidence) {
 					do {
-						rpn->push(opp.top());
-						opp.pop();
+						rpn.push(opp.back());
+						opp.pop_back();
 					}
-					while (!opp.empty() && (opp.top().presidence > current.presidence || opp.top().presidence == current.presidence && current.leftAssoc));
-					opp.push(current);
+					while (!opp.empty() && (opp.back().presidence > current.presidence || opp.back().presidence == current.presidence && current.leftAssoc));
+					opp.push_back(current);
 				}
 				// if operator has higher presidence than top of operator stack then push to stack
 				else {
-					opp.push(current);
+					opp.push_back(current);
 				}
 			}
 		}
@@ -117,7 +120,7 @@ void Parser::expression(TokenType delimiter, ExpressionType type) {
 			expectOper = false;
 			allowAssignment = false;
 
-			opp.push(current);
+			opp.push_back(current);
 		}
 		// deal with right parenthesises
 		else if (current.type == TokenType::RIGHT_PARAN) {
@@ -126,9 +129,9 @@ void Parser::expression(TokenType delimiter, ExpressionType type) {
 			allowAssignment = false;
 
 			// reset operator stack until left parenthesis found
-			while (!opp.empty() && opp.top().type != TokenType::LEFT_PARAN) {
-				rpn->push(opp.top());
-				opp.pop();
+			while (!opp.empty() && opp.back().type != TokenType::LEFT_PARAN) {
+				rpn.push(opp.back());
+				opp.pop_back();
 			}
 			// error management if unpaired right parenthesis is found
 			if (opp.empty()) {
@@ -136,7 +139,7 @@ void Parser::expression(TokenType delimiter, ExpressionType type) {
 			}
 
 			// remove left parenthesis
-			opp.pop();
+			opp.pop_back();
 		}
 		// handle missing delimiters at file end or unexpected tokens
 		else if (current.type == TokenType::FILE_END) {
@@ -149,11 +152,11 @@ void Parser::expression(TokenType delimiter, ExpressionType type) {
 	// clear remaining operatros from stack
 	while (!opp.empty()) {
 		// deal with unparied left parenthesis
-		if (opp.top().type == TokenType::LEFT_PARAN) {
+		if (opp.back().type == TokenType::LEFT_PARAN) {
 			nonPanicError("Unpaired '(' found.");
 		}
-		rpn->push(opp.top());
-		opp.pop();
+		rpn.push(opp.back());
+		opp.pop_back();
 	}
 
 	// consume delimiter

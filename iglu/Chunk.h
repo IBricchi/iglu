@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <unordered_map>
 
 #include "common.h"
 
@@ -21,6 +22,10 @@ enum struct OpCode {
 	UNARY_FUNC_CALL,
 	BINARY_FUNC_CALL,
 
+	// variable declearations
+	DECLARE_VAR,
+	DEFINE_VAR,
+
 	// return
 	RETURN
 };
@@ -30,6 +35,7 @@ struct Chunk
 	std::vector<uint8_t> code;
 	std::vector<int> lines;
 	std::vector<Object*> objects;
+	std::unordered_map<std::string, uint8_t> variable;
 	Chunk();
 	void writeByte(int, uint8_t);
 	void writeOp(int, OpCode);

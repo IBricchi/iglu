@@ -15,7 +15,7 @@ class Parser
 private:
 	Scanner* scanner;
 	Token current;
-	std::queue<Token>* rpn;
+	std::queue<Token> rpn;
 
 	// errors
 	struct PanicException: public std::exception {

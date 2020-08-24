@@ -12,10 +12,11 @@ class Compiler
 {
 private:
 	std::queue<Token>* rpn;
-	Chunk* chunk;
+	Chunk chunk;
 
 // helpers
 	Token popRpn();
+	Token frontRpn();
 	void tokenToChunk(Token);
 
 // token specifics

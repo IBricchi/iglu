@@ -10,15 +10,15 @@ using namespace std;
 // API
 
 VM::VM() {
-	chunks = stack<Chunk*>();
-	pc = stack<uint8_t*>();
-	objStack = stack<Object*>();
+	chunks = vector<Chunk*>();
+	pc = vector<uint8_t*>();
+	stack = vector<Object*>();
 	hadError = false;
 }
 
 void VM::interpret(Chunk* chunk) {
-	chunks.push(chunk);
-	pc.push(&chunk->code[0]);
+	chunks.push_back(chunk);
+	pc.push_back(&chunk->code[0]);
 	return run();
 }
 
@@ -34,7 +34,7 @@ void VM::run() {
 		case OpCode::OBJECT:
 		{
 			Object* obj = readObject();
-			objStack.push(obj);
+			stack.push_back(obj);
 			break;
 		}
 		case OpCode::NEGATE:
@@ -97,41 +97,41 @@ void VM::run() {
 			break;
 		}
 	}
-	cout << ((Number*)objStack.top())->getVal() << endl;
+	cout << ((Number*)stack.back())->getVal() << endl;
 }
 
 // helpers
 
 inline uint8_t VM::readByte() {
-	return *(pc.top()++);
+	return *(pc.back()++);
 }
 
 inline Object* VM::readObject() {
-	return chunks.top()->objects[*(pc.top()++)];
+	return chunks.back()->objects[*(pc.back()++)];
 }
 
 inline Object* VM::popStack() {
-	Object* poped = objStack.top();
-	objStack.pop();
+	Object* poped = stack.back();
+	stack.pop_back();
 	return poped;
 }
 
 inline Object* VM::topStack() {
-	return objStack.top();
+	return stack.back();
 }
 
 inline void VM::pushStack(Object* obj) {
-	objStack.push(obj);
+	stack.push_back(obj);
 }
 
 void VM::intoChunk(Chunk* chunk) {
-	chunks.push(chunk);
-	pc.push(&chunk->code[0]);
+	chunks.push_back(chunk);
+	pc.push_back(&chunk->code[0]);
 }
 
 void VM::leaveChunk() {
-	pc.pop();
-	chunks.pop();
+	pc.pop_back();
+	chunks.pop_back();
 }
 
 bool VM::callFunction(Object* obj, string name) {
@@ -147,12 +147,12 @@ void VM::runtimeError(string message) {
 	hadError = true;
 
 	// print error message
-	int line = chunks.top()->lines[pc.top() - &chunks.top()->code[0] - 1];
+	int line = chunks.back()->lines[pc.back() - &chunks.back()->code[0] - 1];
 	cerr << "[Line: " << line << "] " << message << endl;
 	
 	// clear stacks
-	while (!chunks.empty()) chunks.pop();
-	while (!pc.empty()) pc.pop();
+	while (!chunks.empty()) chunks.pop_back();
+	while (!pc.empty()) pc.pop_back();
 }
 
 inline void VM::runtimeErrorObject(Object* errorObj) {

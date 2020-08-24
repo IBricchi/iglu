@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stack>
+#include <vector>
 #include <string>
 
 #include "common.h"
@@ -14,10 +14,9 @@
 class VM
 {
 private:
-	std::stack<Chunk*> chunks;
-	std::stack<Object*> objStack;
-	std::stack<uint8_t*> pc;
-	//std::vector<std::pair<std::string, Object*>> variables;
+	std::vector<Chunk*> chunks;
+	std::vector<Object*> stack;
+	std::vector<uint8_t*> pc;
 	
 	//helpers
 	uint8_t readByte();

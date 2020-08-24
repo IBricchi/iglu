@@ -7,7 +7,7 @@ Number::Number(float val) : Object{} {
 	this->val = val;
 	type = "Number";
 
-	addFnProperty("__negate__", (Object::unoFn) &Number::negate);
+	//addFnProperty("__negate__", (Object::unoFn) &Number::negate);
 
 	addFnProperty("__plus__", (Object::binFn) &Number::add);
 	addFnProperty("__minus__", (Object::binFn) &Number::sub);

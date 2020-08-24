@@ -4,8 +4,11 @@ using namespace std;
 
 Object::Object() {
 	type = "Object";
-	properties = map<string, Chunk*>();
+	properties = unordered_map<string, Chunk*>();
 	binFns = vector<Object::binFn>();
+
+	references = unordered_multiset<string>();
+	currentReference = queue<string>();
 }
 
 Object::~Object() {
@@ -45,4 +48,33 @@ string Object::getType() {
 int Object::checkType(string type) {
 	if(this->type == type) return 0;
 	return -1;
+}
+
+inline void Object::reference(string var) {
+	currentReference.push(var);
+}
+
+string Object::dereference() {
+	string front = currentReference.front();
+	currentReference.pop();
+	return front;
+}
+
+void Object::addReference(string var) {
+	references.emplace(var);
+}
+
+void Object::removeReference(string var) {
+	references.erase(references.find(var));
+	if (references.empty()) {
+		delete this;
+	}
+}
+
+void Object::giveImortality() {
+	references.emplace("#");
+}
+
+void Object::removeImortality() {
+	references.erase(references.find("#"));
 }

@@ -11,6 +11,10 @@ Scanner::Scanner(const char* source) {
 	prev = makeToken(TokenType::LEFT_BRACE);
 }
 
+bool Scanner::isAtEnd() {
+	return *current == '\0';
+}
+
 Token Scanner::scanToken() {
 	skipWhiteSpace();
 	
@@ -81,10 +85,6 @@ bool Scanner::match(char c) {
 }
 
 // Helpers
-
-bool Scanner::isAtEnd() {
-	return *current == '\0';
-}
 
 bool Scanner::isDigit(char c) {
 	return c <= '9' && c >= '0';

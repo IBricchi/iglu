@@ -40,10 +40,11 @@ static void repl() {
 		Parser parser(&scanner);
 		Compiler compiler{};
 		parser.parse();
-		/*if (!parser.hadError) {
+		if (!parser.hadError) {
 			compiler.compile(parser.getRPN());
 			vm.interpret(compiler.getChunk());
-		}*/
+		}
+		int a = 1;
 	}
 }
 

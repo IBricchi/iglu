@@ -146,6 +146,7 @@
     <ClCompile Include="iglu.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="objects\Error.cpp" />
+    <ClCompile Include="objects\Null.cpp" />
     <ClCompile Include="objects\Number.cpp" />
     <ClCompile Include="Parser.cpp" />
     <ClCompile Include="Scanner.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="Compiler.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="objects\Error.h" />
+    <ClInclude Include="objects\Null.h" />
     <ClInclude Include="objects\Number.h" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="Scanner.h" />

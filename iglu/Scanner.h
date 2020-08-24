@@ -22,7 +22,6 @@ private:
 	bool match(char);
 
 	// helpers
-	bool isAtEnd();
 	bool isDigit(char);
 	bool isAlpha(char);
 	bool isAlphaNumeric(char);
@@ -40,6 +39,7 @@ private:
 	Token identifierToken();
 public:
 	Scanner(const char* source);
+	bool isAtEnd();
 	Token scanToken();
 };
 
