@@ -50,11 +50,12 @@ int Object::checkType(string type) {
 	return -1;
 }
 
-inline void Object::reference(string var) {
+void Object::reference(string var) {
 	currentReference.push(var);
 }
 
 string Object::dereference() {
+	if (currentReference.empty()) return "";
 	string front = currentReference.front();
 	currentReference.pop();
 	return front;
@@ -77,4 +78,7 @@ void Object::giveImortality() {
 
 void Object::removeImortality() {
 	references.erase(references.find("#"));
+	if (references.empty()) {
+		delete this;
+	}
 }

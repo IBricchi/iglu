@@ -24,7 +24,6 @@ private:
 	//helpers
 	uint8_t readByte();
 	Constant readConstant();
-	Object* readObject();
 
 	Object* popStack();
 	Object* topStack();

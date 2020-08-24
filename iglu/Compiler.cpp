@@ -79,6 +79,9 @@ void Compiler::tokenToChunk(Token token) {
 		chunk.writeOpByte(token.line, OpCode::GET_VAR, chunk.constants.size() - 1);
 		break;
 	}
+	case TokenType::EQUAL: {
+		chunk.writeOp(token.line, OpCode::DEFINE_VAR);
+	}
 	case TokenType::RETURN:
 		chunk.writeOp(token.line, OpCode::RETURN);
 		break;

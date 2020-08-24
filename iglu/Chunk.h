@@ -11,7 +11,6 @@
 enum struct OpCode {
 	// objects
 	CONSTANT,
-	OBJECT,
 	
 	// arithmetic
 	NEGATE,

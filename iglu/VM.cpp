@@ -37,7 +37,7 @@ void VM::run() {
 			switch (constant.type)
 			{
 			case ConstType::NILL: {
-				stack.push_back(new Null());
+				pushStack(new Null());
 				stack.back()->giveImortality();
 				break;
 			}
@@ -46,7 +46,7 @@ void VM::run() {
 				break;
 			}
 			case ConstType::NUMBER: {
-				stack.push_back(new Number(constant.as.Number));
+				pushStack(new Number(constant.as.Number));
 				stack.back()->giveImortality();
 				break;
 			}
@@ -55,11 +55,6 @@ void VM::run() {
 				break;
 			}
 			}
-			break;
-		}
-		case OpCode::OBJECT:{
-			Object* obj = readObject();
-			stack.push_back(obj);
 			break;
 		}
 		case OpCode::NEGATE:{
@@ -89,8 +84,11 @@ void VM::run() {
 		}
 		case OpCode::UNARY_FUNC_CALL:{
 			Object* a = popStack();
+			a->dereference();
 			uint8_t fi = readByte();
 			Object* b = (a->*a->unoFns[fi])();
+			a->removeImortality();
+			b->giveImortality();
 
 			// check if error object is returned
 			if (b->checkType("Error") >= 0) runtimeErrorObject(b);
@@ -100,9 +98,14 @@ void VM::run() {
 		}
 		case OpCode::BINARY_FUNC_CALL:{
 			Object* b = popStack();
+			b->dereference();
 			Object* a = popStack();
+			a->dereference();
 			uint8_t fi = readByte();
 			Object* c = (a->*(a->binFns[fi]))(b);
+			b->removeImortality();
+			a->removeImortality();
+			c->giveImortality();
 
 			// check if error object is returned
 			if (c->checkType("Error") >= 0) runtimeErrorObject(c);
@@ -118,10 +121,30 @@ void VM::run() {
 			else variables[*name].push_back(nullObj);
 			break;
 		}
+		case OpCode::DEFINE_VAR: {
+			Object* b = popStack();
+			b->dereference();
+			Object* a = popStack();
+			string name = a->dereference();
+			
+			if(variables.find(name) == variables.end()) runtimeError("Cannot assign to undeclared variable '" + name + "'.");
+			
+			b->addReference(name);
+			a->removeReference(name);
+
+			vector<Object*>* varVec = &variables[name];
+			(*varVec)[varVec->size() - 1] = b;
+
+			b->removeImortality();
+			a->removeImortality();
+			break;
+		}
 		case OpCode::GET_VAR: {
 			string* name = readConstant().as.String;
 			if(variables.find(*name) == variables.end()) runtimeError("Variable '" + *name + "' has not been declared.");
 			pushStack(variables[*name].back());
+			topStack()->reference(*name);
+			topStack()->giveImortality();
 			break;
 		}
 		case OpCode::RETURN:
@@ -129,9 +152,11 @@ void VM::run() {
 			break;
 		}
 	}
-	cout << stack.back()->getType();
-	if(0 == stack.back()->checkType("Number")) cout << ": " << ((Number*)stack.back())->getVal();
-	cout << endl;
+	if (!stack.empty()) {
+		cout << stack.back()->getType();
+		if(0 == stack.back()->checkType("Number")) cout << ": " << ((Number*)stack.back())->getVal();
+		cout << endl;
+	}
 }
 
 // helpers
@@ -142,10 +167,6 @@ inline uint8_t VM::readByte() {
 
 inline Constant VM::readConstant() {
 	return chunks.back()->constants[*(pc.back()++)];
-}
-
-inline Object* VM::readObject() {
-	return chunks.back()->objects[*(pc.back()++)];
 }
 
 inline Object* VM::popStack() {
@@ -163,8 +184,8 @@ inline void VM::pushStack(Object* obj) {
 }
 
 void VM::intoChunk(Chunk* chunk) {
-	chunks.push_back(chunk);
-	pc.push_back(&chunk->code[0]);
+	chunks.push_back(new Chunk(*chunk));
+	pc.push_back(&chunks.back()->code[0]);
 }
 
 void VM::leaveChunk() {
