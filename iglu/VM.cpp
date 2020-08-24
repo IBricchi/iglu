@@ -92,8 +92,7 @@ void VM::run() {
 
 			// check if error object is returned
 			if (b->checkType("Error") >= 0) runtimeErrorObject(b);
-
-			pushStack(b);
+			else pushStack(b);
 			break;
 		}
 		case OpCode::BINARY_FUNC_CALL:{
@@ -109,8 +108,8 @@ void VM::run() {
 
 			// check if error object is returned
 			if (c->checkType("Error") >= 0) runtimeErrorObject(c);
-			
-			pushStack(c);
+			else pushStack(c);
+
 			break;
 		}
 		case OpCode::DECLARE_VAR:{
@@ -128,23 +127,26 @@ void VM::run() {
 			string name = a->dereference();
 			
 			if(variables.find(name) == variables.end()) runtimeError("Cannot assign to undeclared variable '" + name + "'.");
-			
-			b->addReference(name);
-			a->removeReference(name);
+			else {
+				b->addReference(name);
+				a->removeReference(name);
 
-			vector<Object*>* varVec = &variables[name];
-			(*varVec)[varVec->size() - 1] = b;
+				vector<Object*>* varVec = &variables[name];
+				(*varVec)[varVec->size() - 1] = b;
 
-			b->removeImortality();
-			a->removeImortality();
+				b->removeImortality();
+				a->removeImortality();
+			}
 			break;
 		}
 		case OpCode::GET_VAR: {
 			string* name = readConstant().as.String;
 			if(variables.find(*name) == variables.end()) runtimeError("Variable '" + *name + "' has not been declared.");
-			pushStack(variables[*name].back());
-			topStack()->reference(*name);
-			topStack()->giveImortality();
+			else {
+				pushStack(variables[*name].back());
+				topStack()->reference(*name);
+				topStack()->giveImortality();
+			}
 			break;
 		}
 		case OpCode::RETURN:
