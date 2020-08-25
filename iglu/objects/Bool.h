@@ -10,6 +10,11 @@ class Bool : public Object
 {
 private:
 	bool val;
+
+	Object* _not();
+	Object* equal(Object*);
+	Object* notEqual(Object*);
+
 public:
 	Bool(bool);
 
