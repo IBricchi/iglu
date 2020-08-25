@@ -29,7 +29,8 @@ queue<Token>* Parser::getRPN() {
 
 void Parser::statement() {
 	rpn = queue<Token>();
-	for (current = scanner->scanToken(); true; current = scanner->scanToken()) {
+	current = scanner->scanToken();
+	while (true) {
 		switch (current.type)
 		{
 		case TokenType::LET:
@@ -51,9 +52,9 @@ void Parser::statement() {
 			}
 			break;
 		}
+		rpn.push(utility_popToken);
 		if (current.type == TokenType::FILE_END) break;
 	}
-	rpn.push(utility_popToken);
 }
 
 void Parser::expression(TokenType delimiter, ExpressionType type) {
