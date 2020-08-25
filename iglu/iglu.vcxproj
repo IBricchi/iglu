@@ -146,6 +146,7 @@
     <ClCompile Include="Constant.cpp" />
     <ClCompile Include="iglu.cpp" />
     <ClCompile Include="Object.cpp" />
+    <ClCompile Include="objects\Bool.cpp" />
     <ClCompile Include="objects\Error.cpp" />
     <ClCompile Include="objects\Null.cpp" />
     <ClCompile Include="objects\Number.cpp" />
@@ -162,6 +163,7 @@
     <ClInclude Include="Compiler.h" />
     <ClInclude Include="Constant.h" />
     <ClInclude Include="Object.h" />
+    <ClInclude Include="objects\Bool.h" />
     <ClInclude Include="objects\Error.h" />
     <ClInclude Include="objects\Null.h" />
     <ClInclude Include="objects\Number.h" />

@@ -6,16 +6,13 @@
 
 #include "../Object.h"
 
-class Str : public Object
+class Bool : public Object
 {
 private:
-	std::string val;
-
-	Object* concat(Object*);
+	bool val;
 public:
-	Str(std::string);
-	Str(std::string*);
+	Bool(bool);
 
 	std::string toString() override;
-	std::string getVal();
+	bool getVal();
 };

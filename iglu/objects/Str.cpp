@@ -9,17 +9,17 @@ Str::Str(string val) : Object{} {
 	this->val = val;
 	type = "String";
 
-	addFnProperty("__plus__", (Object::binFn) & Str::add);
+	addFnProperty("__plus__", (Object::binFn) & Str::concat);
 }
 
 Str::Str(string* val) : Object{} {
 	this->val = *val;
 	type = "String";
 
-	addFnProperty("__plus__", (Object::binFn) &Str::add);
+	addFnProperty("__plus__", (Object::binFn) &Str::concat);
 }
 
-Object* Str::add(Object* b) {
+Object* Str::concat(Object* b) {
 	string bVal = b->toString();
 	return new Str(val + bVal);
 }

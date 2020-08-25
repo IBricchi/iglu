@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#include "objects/Bool.h"
 #include "objects/Error.h"
 #include "objects/Number.h"
 #include "objects/Null.h"
@@ -43,7 +44,8 @@ void VM::run() {
 				break;
 			}
 			case ConstType::BOOL: {
-				// TODO! add bools
+				pushStack(new Bool(constant.as.Bool));
+				stack.back()->giveImortality();
 				break;
 			}
 			case ConstType::NUMBER: {
@@ -116,6 +118,10 @@ void VM::run() {
 		}
 		case OpCode::DECLARE_VAR:{
 			string* name = readConstant().as.String;
+			if (variables.find(*name) != variables.end()) { // TODO! come back when different scopes exists
+				runtimeError("Variable '" + *name + "' has already been declared.");
+				break;
+			}
 			Object* nullObj = new Null();
 			nullObj->addReference(*name);
 			if(variables.find(*name) == variables.end()) variables.emplace(*name, vector<Object*>{nullObj});
@@ -167,6 +173,7 @@ void VM::run() {
 			cout << stack.back()->getType();
 			if (0 == stack.back()->checkType("Number")) cout << ": " << ((Number*)stack.back())->getVal();
 			else if (0 == stack.back()->checkType("String")) cout << ": " << ((Str*)stack.back())->getVal();
+			else if (0 == stack.back()->checkType("Bool")) cout << ": " << stack.back()->toString();
 			cout << endl;
 
 			// actual code

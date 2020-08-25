@@ -72,6 +72,18 @@ void Compiler::tokenToChunk(Token token) {
 		chunk.writeOpByte(token.line, OpCode::CONSTANT, chunk.constants.size() - 1);
 		break;
 	}
+	case TokenType::TRUE: {
+		Constant trueConst = Constant(true);
+		chunk.constants.push_back(trueConst);
+		chunk.writeOpByte(token.line, OpCode::CONSTANT, chunk.constants.size() - 1);
+		break;
+	}
+	case TokenType::FALSE: {
+		Constant trueConst = Constant(false);
+		chunk.constants.push_back(trueConst);
+		chunk.writeOpByte(token.line, OpCode::CONSTANT, chunk.constants.size() - 1);
+		break;
+	}
 	case TokenType::NILL: {
 		Constant nullConst = Constant();
 		chunk.constants.push_back(nullConst);
