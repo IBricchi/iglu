@@ -20,6 +20,15 @@ enum struct OpCode {
 	STAR,
 	SLASH,
 
+	// boolean
+	EQUAL_EQUAL,
+	BANG_EQUAL,
+	GREATER,
+	GREATER_EQUAL,
+	LESS,
+	LESS_EQUAL,
+	BANG,
+
 	// call cpp function
 	UNARY_FUNC_CALL,
 	BINARY_FUNC_CALL,

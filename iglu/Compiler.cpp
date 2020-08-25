@@ -43,6 +43,9 @@ inline Token Compiler::frontRpn() {
 void Compiler::tokenToChunk(Token token) {
 	switch (token.type)
 	{
+	case TokenType::NEGATE:
+		chunk.writeOp(token.line, OpCode::NEGATE);
+		break;
 	case TokenType::PLUS:
 		chunk.writeOp(token.line, OpCode::PLUS);
 		break;
@@ -55,8 +58,26 @@ void Compiler::tokenToChunk(Token token) {
 	case TokenType::SLASH:
 		chunk.writeOp(token.line, OpCode::SLASH);
 		break;
-	case TokenType::NEGATE:
-		chunk.writeOp(token.line, OpCode::NEGATE);
+	case TokenType::BANG:
+		chunk.writeOp(token.line, OpCode::BANG);
+		break;
+	case TokenType::EQUAL_EQUAL:
+		chunk.writeOp(token.line, OpCode::EQUAL_EQUAL);
+		break;
+	case TokenType::BANG_EQUAL:
+		chunk.writeOp(token.line, OpCode::BANG_EQUAL);
+		break;
+	case TokenType::GREATER:
+		chunk.writeOp(token.line, OpCode::GREATER);
+		break;
+	case TokenType::GREATER_EQUAL:
+		chunk.writeOp(token.line, OpCode::GREATER_EQUAL);
+		break;
+	case TokenType::LESS:
+		chunk.writeOp(token.line, OpCode::LESS);
+		break;
+	case TokenType::LESS_EQUAL:
+		chunk.writeOp(token.line, OpCode::LESS_EQUAL);
 		break;
 	case TokenType::NUMBER: {
 		string strVal = string(token.start, token.start + token.length);

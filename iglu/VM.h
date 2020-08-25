@@ -28,12 +28,14 @@ private:
 	Object* popStack();
 	Object* topStack();
 	Object* stackAt(int);
-
 	void pushStack(Object*);
+
 	void intoChunk(Chunk*);
 	void leaveChunk();
+
 	bool callFunction(Object*, std::string);
-	
+	void tryCallFunction(Object*, std::string, std::string);
+
 	void runtimeError(std::string);
 	void runtimeErrorObject(Object*);
 

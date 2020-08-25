@@ -63,28 +63,32 @@ void VM::run() {
 		}
 		case OpCode::NEGATE:{
 			Object* a = topStack();
-			if (!callFunction(a, "__negate__")) runtimeError("No overload for the '(-)' operator exsits for type: " + a->getType() + ".");
+			tryCallFunction(a, "__negate__", "(-)");
 			break;
 		}
 		case OpCode::PLUS:{
 			Object* a = stackAt(1);
-			if (!callFunction(a, "__plus__")) runtimeError("No overload for the '+' operator exsits for type: " + a->getType() + ".");
+			tryCallFunction(a, "__plus__", "+");
 			break;
 		}
 		case OpCode::MINUS:{
 			Object* a = stackAt(1);
-			if (!callFunction(a, "__minus__")) runtimeError("No overload for the '-' operator exsits for type: " + a->getType() + ".");
+			tryCallFunction(a, "__minus__", "-");
 			break;
 		}
 		case OpCode::STAR:{
 			Object* a = stackAt(1);
-			if (!callFunction(a, "__star__")) runtimeError("No overload for the '*' operator exsits for type: " + a->getType() + ".");
+			tryCallFunction(a, "__star__", "*");
 			break;
 		}
 		case OpCode::SLASH:{
 			Object* a = stackAt(1);
-			if (!callFunction(a, "__slash__")) runtimeError("No overload for the '/' operator exsits for type: " + a->getType() + ".");
+			tryCallFunction(a, "__slash__", "/");
 			break;
+		}
+		case OpCode::BANG: {
+			Object* a = topStack();
+			tryCallFunction(a, "__bang__", "!");
 		}
 		case OpCode::UNARY_FUNC_CALL:{
 			Object* a = popStack();
@@ -229,6 +233,10 @@ bool VM::callFunction(Object* obj, string name) {
 		return true;
 	}
 	return false;
+}
+
+void VM::tryCallFunction(Object* obj, string call, string sym) {
+	if (!callFunction(obj, call)) runtimeError("No overload for the '" + sym + "' operator exsits for type: " + obj->getType() + ".");
 }
 
 void VM::runtimeError(string message) {
