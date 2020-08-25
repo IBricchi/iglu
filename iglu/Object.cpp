@@ -50,6 +50,10 @@ int Object::checkType(string type) {
 	return -1;
 }
 
+string Object::toString() {
+	return "(Object)";
+}
+
 void Object::reference(string var) {
 	currentReference.push(var);
 }

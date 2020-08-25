@@ -40,8 +40,6 @@ private:
 	void expression(TokenType, ExpressionType = ExpressionType::NONE);
 
 	// helpers
-	std::string getName(Token);
-	std::string getName(TokenType);
 	void tryExpression(TokenType, ExpressionType = ExpressionType::NONE);
 
 public:
@@ -49,5 +47,9 @@ public:
 	Parser(Scanner*);
 	std::queue<Token>* getRPN();
 	void parse();
+
+	// helpers
+	static std::string getName(Token);
+	static std::string getName(TokenType);
 };
 

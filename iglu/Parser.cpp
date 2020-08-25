@@ -46,6 +46,9 @@ void Parser::statement() {
 			if (current.presidence == Presidence::PRIMARY || current.presidence == Presidence::UNARY || current.type == TokenType::LEFT_PARAN) {
 				tryExpression(TokenType::SEMICOLON);
 			}
+			else {
+				panicError("Unexpected token '" + getName(current) + "'.");
+			}
 			break;
 		}
 		if (current.type == TokenType::FILE_END) break;
@@ -59,7 +62,6 @@ void Parser::expression(TokenType delimiter, ExpressionType type) {
 	// values for validating expression
 	bool expectOper = false;
 	bool allowAssignment = true;
-	bool hasAssigned = false;
 
 	for (; current.type != delimiter; current = scanner->scanToken()) {
 		// check if primary presidence (identifier/constant)
@@ -80,7 +82,6 @@ void Parser::expression(TokenType delimiter, ExpressionType type) {
 			if (current.presidence == Presidence::ASSIGNMENT){
 				if(type != ExpressionType::VAR_DEC && !allowAssignment) nonPanicError("Cannot assign to the left hand side of '=' operator.");
 				else if(!allowAssignment) nonPanicError("Cannot define to the left hand side of '=' operator.");
-				else hasAssigned = true;
 			}
 
 			// update if expectation values 

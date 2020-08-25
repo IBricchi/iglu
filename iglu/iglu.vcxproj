@@ -149,6 +149,7 @@
     <ClCompile Include="objects\Error.cpp" />
     <ClCompile Include="objects\Null.cpp" />
     <ClCompile Include="objects\Number.cpp" />
+    <ClCompile Include="objects\Str.cpp" />
     <ClCompile Include="Parser.cpp" />
     <ClCompile Include="Scanner.cpp" />
     <ClCompile Include="Token.cpp" />
@@ -164,6 +165,7 @@
     <ClInclude Include="objects\Error.h" />
     <ClInclude Include="objects\Null.h" />
     <ClInclude Include="objects\Number.h" />
+    <ClInclude Include="objects\Str.h" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="Scanner.h" />
     <ClInclude Include="Token.h" />

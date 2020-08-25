@@ -36,9 +36,10 @@ public:
 	std::string getType();
 	int checkType(std::string);
 
+	virtual std::string toString();
+
 	void reference(std::string);
 	std::string dereference();
-	std::string getReference();
 
 	void addReference(std::string);
 	void removeReference(std::string);

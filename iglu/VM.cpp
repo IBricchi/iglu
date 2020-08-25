@@ -2,9 +2,10 @@
 
 #include <iostream>
 
+#include "objects/Error.h"
 #include "objects/Number.h"
 #include "objects/Null.h"
-#include "objects/Error.h"
+#include "objects/Str.h"
 
 using namespace std;
 
@@ -51,7 +52,8 @@ void VM::run() {
 				break;
 			}
 			case ConstType::STRING: {
-				// TODO! add strings
+				pushStack(new Str(constant.as.String));
+				stack.back()->giveImortality();
 				break;
 			}
 			}
@@ -164,6 +166,7 @@ void VM::run() {
 			//debuging
 			cout << stack.back()->getType();
 			if (0 == stack.back()->checkType("Number")) cout << ": " << ((Number*)stack.back())->getVal();
+			else if (0 == stack.back()->checkType("String")) cout << ": " << ((Str*)stack.back())->getVal();
 			cout << endl;
 
 			// actual code

@@ -1,8 +1,9 @@
 #include "Compiler.h"
 
 #include "Constant.h"
-#include "objects/Number.h"
-#include "objects/Null.h"
+
+// debuging
+#include "Parser.h"
 
 using namespace std;
 
@@ -64,6 +65,19 @@ void Compiler::tokenToChunk(Token token) {
 		chunk.writeOpByte(token.line, OpCode::CONSTANT, chunk.constants.size() - 1);
 		break;
 	}
+	case TokenType::STRING: {
+		string strVal = string(token.start + 1, token.start + token.length - 1);
+		Constant str = strVal;
+		chunk.constants.push_back(str);
+		chunk.writeOpByte(token.line, OpCode::CONSTANT, chunk.constants.size() - 1);
+		break;
+	}
+	case TokenType::NILL: {
+		Constant nullConst = Constant();
+		chunk.constants.push_back(nullConst);
+		chunk.writeOpByte(token.line, OpCode::CONSTANT, chunk.constants.size() - 1);
+		break;
+	}
 	case TokenType::LET: {
 		Token var = frontRpn();
 		string varName = string(var.start, var.start + var.length);
@@ -89,6 +103,11 @@ void Compiler::tokenToChunk(Token token) {
 	case TokenType::POP_STACK:
 		chunk.writeOp(token.line, OpCode::POP_STACK);
 		break;
+	default: {
+		string message = string("Unimplemented token type found '" + Parser::getName(token) + "'.");
+		throw exception(message.c_str());
+		break;
+	}
 	}
 }
 
