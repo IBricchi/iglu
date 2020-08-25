@@ -88,7 +88,38 @@ void VM::run() {
 		}
 		case OpCode::BANG: {
 			Object* a = topStack();
-			tryCallFunction(a, "__bang__", "!");
+			tryCallFunction(a, "__not__", "!");
+			break;
+		}
+		case OpCode::EQUAL_EQUAL: {
+			Object* a = stackAt(1);
+			tryCallFunction(a, "__equal_equal__", "==");
+			break;
+		}
+		case OpCode::BANG_EQUAL: {
+			Object* a = stackAt(1);
+			tryCallFunction(a, "__not_equal__", "!=");
+			break;
+		}
+		case OpCode::GREATER: {
+			Object* a = stackAt(1);
+			tryCallFunction(a, "__greater__", ">");
+			break;
+		}
+		case OpCode::GREATER_EQUAL: {
+			Object* a = stackAt(1);
+			tryCallFunction(a, "__greater_equal__", ">=");
+			break;
+		}
+		case OpCode::LESS: {
+			Object* a = stackAt(1);
+			tryCallFunction(a, "__less__", "<");
+			break;
+		}
+		case OpCode::LESS_EQUAL: {
+			Object* a = stackAt(1);
+			tryCallFunction(a, "__less_equal__", "<=");
+			break;
 		}
 		case OpCode::UNARY_FUNC_CALL:{
 			Object* a = popStack();
