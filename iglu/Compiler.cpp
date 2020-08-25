@@ -79,11 +79,15 @@ void Compiler::tokenToChunk(Token token) {
 		chunk.writeOpByte(token.line, OpCode::GET_VAR, chunk.constants.size() - 1);
 		break;
 	}
-	case TokenType::EQUAL: {
+	case TokenType::EQUAL:
 		chunk.writeOp(token.line, OpCode::DEFINE_VAR);
-	}
+		break;
 	case TokenType::RETURN:
 		chunk.writeOp(token.line, OpCode::RETURN);
+		break;
+	// utilities
+	case TokenType::POP_STACK:
+		chunk.writeOp(token.line, OpCode::POP_STACK);
 		break;
 	}
 }

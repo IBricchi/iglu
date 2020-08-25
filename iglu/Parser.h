@@ -17,6 +17,8 @@ private:
 	Token current;
 	std::queue<Token> rpn;
 
+	const Token utility_popToken = Token{TokenType::POP_STACK, Presidence::NONE, true, nullptr, 0, 0};
+
 	// errors
 	struct PanicException: public std::exception {
 		const char* what() const throw();

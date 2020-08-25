@@ -22,7 +22,10 @@ enum struct TokenType {
 	THIS, PARENT, CHILD_OF,
 
 	ERROR,
-	FILE_END
+	FILE_END,
+
+	// utilities
+	POP_STACK
 };
 
 enum struct Presidence {

@@ -138,6 +138,11 @@ void VM::run() {
 
 			b->removeImortality();
 			a->removeImortality();
+
+			Object* nullObj = new Null();
+			nullObj->giveImortality();
+
+			pushStack(nullObj);
 			
 			break;
 		}
@@ -155,12 +160,17 @@ void VM::run() {
 		case OpCode::RETURN:
 			leaveChunk();
 			break;
+		case OpCode::POP_STACK:
+			//debuging
+			cout << stack.back()->getType();
+			if (0 == stack.back()->checkType("Number")) cout << ": " << ((Number*)stack.back())->getVal();
+			cout << endl;
+
+			// actual code
+			Object* obj = popStack();
+			obj->removeImortality();
+			break;
 		}
-	}
-	if (!stack.empty()) {
-		cout << stack.back()->getType();
-		if(0 == stack.back()->checkType("Number")) cout << ": " << ((Number*)stack.back())->getVal();
-		cout << endl;
 	}
 }
 
@@ -221,6 +231,7 @@ void VM::runtimeError(string message) {
 	// clear stacks
 	while (!chunks.empty()) chunks.pop_back();
 	while (!pc.empty()) pc.pop_back();
+	while (!stack.empty()) stack.pop_back();
 }
 
 inline void VM::runtimeErrorObject(Object* errorObj) {
