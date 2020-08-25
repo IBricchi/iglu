@@ -16,5 +16,6 @@ public:
 	Str(std::string);
 	Str(std::string*);
 
+	std::string toString() override;
 	std::string getVal();
 };

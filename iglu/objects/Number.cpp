@@ -44,6 +44,11 @@ Object* Number::div(Object* b) {
 	return new Number(val / bVal);
 }
 
+string Number::toString() {
+	if(val == (int)val) return to_string((int)val);
+	return to_string(val);
+}
+
 float Number::getVal() {
 	return val;
 }

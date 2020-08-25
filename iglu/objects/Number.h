@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "../common.h"
 
 #include "../Object.h"
@@ -17,5 +19,6 @@ private:
 public:
 	Number(float);
 
+	std::string toString() override;
 	float getVal();
 };

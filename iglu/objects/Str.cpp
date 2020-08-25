@@ -24,6 +24,10 @@ Object* Str::add(Object* b) {
 	return new Str(val + bVal);
 }
 
+string Str::toString(){
+	return val;
+}
+
 string Str::getVal() {
 	return val;
 }
