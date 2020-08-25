@@ -51,7 +51,7 @@ int Object::checkType(string type) {
 }
 
 string Object::toString() {
-	return "(Object)";
+	return "Object";
 }
 
 void Object::reference(string var) {

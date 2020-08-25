@@ -1,6 +1,6 @@
 #include "Str.h"
 
-#include "Number.h"
+#include "Bool.h"
 #include "Error.h"
 
 using namespace std;
@@ -22,6 +22,12 @@ Str::Str(string* val) : Object{} {
 Object* Str::concat(Object* b) {
 	string bVal = b->toString();
 	return new Str(val + bVal);
+}
+
+Object* Str::compare(Object* b) {
+	if (b->checkType("String") != 0) return new Error("String does not support comparing wtih " + b->getType() + ".");
+	string bVal = b->toString();
+	return new Bool(val == bVal);
 }
 
 string Str::toString(){

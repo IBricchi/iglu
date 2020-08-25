@@ -205,11 +205,7 @@ void VM::run() {
 			break;
 		case OpCode::POP_STACK:
 			//debuging
-			cout << stack.back()->getType();
-			if (0 == stack.back()->checkType("Number")) cout << ": " << ((Number*)stack.back())->getVal();
-			else if (0 == stack.back()->checkType("String")) cout << ": " << ((Str*)stack.back())->getVal();
-			else if (0 == stack.back()->checkType("Bool")) cout << ": " << stack.back()->toString();
-			cout << endl;
+			cout << stack.back()->getType() << ": " << stack.back()->toString() << endl;
 
 			// actual code
 			Object* obj = popStack();

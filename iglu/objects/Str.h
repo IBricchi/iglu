@@ -12,6 +12,7 @@ private:
 	std::string val;
 
 	Object* concat(Object*);
+	Object* compare(Object*);
 public:
 	Str(std::string);
 	Str(std::string*);
