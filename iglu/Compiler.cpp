@@ -25,7 +25,16 @@ void Compiler::compile(queue<Token>* rpn) {
 	rt.type = TokenType::RETURN;
 	this->rpn->push(rt);
 	chunk = Chunk();
-	statement();
+	doCompile();
+}
+
+void Compiler::doCompile() {
+	Token token = popRpn();
+	while (!rpn->empty()) {
+		tokenToChunk(token);
+		token = popRpn();
+	}
+	tokenToChunk(token);
 }
 
 // helpers
@@ -142,19 +151,4 @@ void Compiler::tokenToChunk(Token token) {
 		break;
 	}
 	}
-}
-
-// token specifics
-
-void Compiler::statement() {
-	expression();
-}
-
-void Compiler::expression() {
-	Token token = popRpn();
-	while (!rpn->empty()) {
-		tokenToChunk(token);
-		token = popRpn();
-	}
-	tokenToChunk(token);
 }

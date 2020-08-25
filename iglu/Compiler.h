@@ -20,8 +20,7 @@ private:
 	void tokenToChunk(Token);
 
 // token specifics
-	void statement();
-	void expression();
+	void doCompile();
 
 public:
 	Compiler();
