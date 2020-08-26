@@ -40,6 +40,7 @@ private:
 	void expression(TokenType, ExpressionType = ExpressionType::NONE);
 
 	// helpers
+	void tryStatement();
 	void tryExpression(TokenType, ExpressionType = ExpressionType::NONE);
 
 public:

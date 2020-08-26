@@ -13,6 +13,7 @@ private:
 
 	Object* concat(Object*);
 	Object* compare(Object*);
+	Object* notCompare(Object*);
 public:
 	Str(std::string);
 	Str(std::string*);

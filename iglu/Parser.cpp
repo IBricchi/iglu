@@ -17,7 +17,7 @@ Parser::Parser(Scanner* scanner) {
 void Parser::parse() {
 	hadError = false;
 	while (!scanner->isAtEnd()) {
-		statement();
+		tryStatement();
 	}
 }
 
@@ -38,10 +38,17 @@ void Parser::statement() {
 			rpn.push(current);
 
 			current = scanner->scanToken();
+
 			// get assignment expression
 			tryExpression(TokenType::SEMICOLON, ExpressionType::VAR_DEC);
-
 			break;
+		//case TokenType::IF:
+		//	// insert if token into rpn
+		//	Token ifToken = current;
+
+		//	current = scanner->scanToken();
+		//	if(curr)
+
 		default:
 			// expression statement
 			if (current.presidence == Presidence::PRIMARY || current.presidence == Presidence::UNARY || current.type == TokenType::LEFT_PARAN) {
@@ -248,6 +255,15 @@ inline string Parser::getName(Token token) {
 
 inline string Parser::getName(TokenType type) {
 	return Token::tokenName(type);
+}
+
+void Parser::tryStatement() {
+	try {
+		statement();
+	}
+	catch (Parser::PanicException err) {
+		reachDelimiter(TokenType::SEMICOLON);
+	}
 }
 
 void Parser::tryExpression(TokenType delimiter, ExpressionType type) {

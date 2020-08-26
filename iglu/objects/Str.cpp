@@ -10,6 +10,8 @@ Str::Str(string val) : Object{} {
 	type = "String";
 
 	addFnProperty("__plus__", (Object::binFn) & Str::concat);
+	addFnProperty("__equal_equal__", (Object::binFn) & Str::compare);
+	addFnProperty("__not_equal__", (Object::binFn) & Str::notCompare);
 }
 
 Str::Str(string* val) : Object{} {
@@ -17,6 +19,8 @@ Str::Str(string* val) : Object{} {
 	type = "String";
 
 	addFnProperty("__plus__", (Object::binFn) &Str::concat);
+	addFnProperty("__equal_equal__", (Object::binFn) & Str::compare);
+	addFnProperty("__not_equal__", (Object::binFn) & Str::notCompare);
 }
 
 Object* Str::concat(Object* b) {
@@ -28,6 +32,12 @@ Object* Str::compare(Object* b) {
 	if (b->checkType("String") != 0) return new Error("String does not support comparing wtih " + b->getType() + ".");
 	string bVal = b->toString();
 	return new Bool(val == bVal);
+}
+
+Object* Str::notCompare(Object* b) {
+	if (b->checkType("String") != 0) return new Error("String does not support comparing wtih " + b->getType() + ".");
+	string bVal = b->toString();
+	return new Bool(val != bVal);
 }
 
 string Str::toString(){

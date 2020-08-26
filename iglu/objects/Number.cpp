@@ -33,17 +33,17 @@ Object* Number::add(Object* b) {
 	return new Number(val + bVal);
 }
 Object* Number::sub(Object* b) {
-	if (!b->checkType("Number") != 0) return new Error("Number does not support being subtracted by " + b->getType() + ".");
+	if (b->checkType("Number") != 0) return new Error("Number does not support being subtracted by " + b->getType() + ".");
 	float bVal = ((Number*)b)->getVal();
 	return new Number(val - bVal);
 }
 Object* Number::mult(Object* b) {
-	if (!b->checkType("Number") != 0) return new Error("Number does not support multiplying by " + b->getType() + ".");
+	if (b->checkType("Number") != 0) return new Error("Number does not support multiplying by " + b->getType() + ".");
 	float bVal = ((Number*)b)->getVal();
 	return new Number(val * bVal);
 }
 Object* Number::div(Object* b) {
-	if (!b->checkType("Number") != 0) return new Error("Number does not support dividing by  " + b->getType() + ".");
+	if (b->checkType("Number") != 0) return new Error("Number does not support dividing by  " + b->getType() + ".");
 	float bVal = ((Number*)b)->getVal();
 	return new Number(val / bVal);
 }
