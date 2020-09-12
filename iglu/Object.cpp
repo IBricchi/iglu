@@ -1,44 +1,71 @@
 #include "Object.h"
+#include "objects/Str.h"
 
 using namespace std;
 
 Object::Object() {
 	type = "Object";
-	properties = unordered_map<string, Chunk*>();
+	properties = unordered_map<string, pair<int, Chunk*>>();
+	unoFns = vector<Object::unoFn>();
 	binFns = vector<Object::binFn>();
 
 	references = unordered_multiset<string>();
 	currentReference = queue<string>();
+
+	addFnProperty("__to_string__", (Object::unoFn) &Object::toString);
 }
 
 Object::~Object() {
 	for (auto i = properties.begin(); i != properties.end(); i++) {
-		delete i->second;
+		delete i->second.second;
 	}
 }
 
-Chunk* Object::generateFnChunk(unoFn fn) {
+Chunk* Object::generateUnoFnChunk(int index) {
 	Chunk* chunk = new Chunk();
-	chunk->writeOpByte(0, OpCode::UNARY_FUNC_CALL, unoFns.size());
+	chunk->writeOpByte(0, OpCode::UNARY_FUNC_CALL, index);
 	chunk->writeOp(0, OpCode::RETURN);
-	unoFns.push_back(fn);
+	
 	return chunk;
 }
 
-Chunk* Object::generateFnChunk(binFn fn) {
+Chunk* Object::generateBinFnChunk(int index) {
 	Chunk* chunk = new Chunk();
-	chunk->writeOpByte(0, OpCode::BINARY_FUNC_CALL, binFns.size());
+	chunk->writeOpByte(0, OpCode::BINARY_FUNC_CALL, index);
 	chunk->writeOp(0, OpCode::RETURN);
-	binFns.push_back(fn);
+
 	return chunk;
 }
 
 void Object::addFnProperty(string prop, Object::unoFn fn) {
-	properties[prop] = generateFnChunk(fn);
+	int index;
+	if (properties.find(prop) == properties.end()) {
+		index = unoFns.size();
+		unoFns.push_back(fn);
+	}
+	else {
+		index = properties[prop].first;
+		unoFns[index] = fn;
+
+		delete properties[prop].second;
+	}
+	properties[prop] = pair<int, Chunk*>{index, generateUnoFnChunk(index)};
 }
 
 void Object::addFnProperty(string prop, Object::binFn fn) {
-	properties[prop] = generateFnChunk(fn);
+	int index;
+	if (properties.find(prop) == properties.end()) {
+		index = binFns.size();
+		binFns.push_back(fn);
+	}
+	else {
+		index = properties[prop].first;
+		binFns[index] = fn;
+
+		delete properties[prop].second;
+	}
+
+	properties[prop] = pair<int, Chunk*>{index, generateBinFnChunk(index)};
 }
 
 string Object::getType() {
@@ -50,8 +77,8 @@ int Object::checkType(string type) {
 	return -1;
 }
 
-string Object::toString() {
-	return "Object";
+Object* Object::toString() {
+	return new Str("Object");
 }
 
 void Object::reference(string var) {

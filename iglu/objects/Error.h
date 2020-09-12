@@ -9,6 +9,8 @@
 class Error : public Object {
 private:
 	std::string message;
+
+	Object* toString();
 public:
 	Error(std::string);
 

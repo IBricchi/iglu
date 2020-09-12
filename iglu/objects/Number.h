@@ -11,6 +11,7 @@ class Number : public Object
 private:
 	float val;
 
+	Object* toString();
 	Object* negate();
 
 	Object* add(Object*);
@@ -27,6 +28,5 @@ private:
 public:
 	Number(float);
 
-	std::string toString() override;
 	float getVal();
 };

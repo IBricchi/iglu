@@ -11,13 +11,14 @@ class Bool : public Object
 private:
 	bool val;
 
+	Object* toString();
 	Object* _not();
+
 	Object* equal(Object*);
 	Object* notEqual(Object*);
 
 public:
 	Bool(bool);
 
-	std::string toString() override;
 	bool getVal();
 };

@@ -2,6 +2,7 @@
 
 #include "Bool.h"
 #include "Error.h"
+#include "Str.h"
 
 using namespace std;
 
@@ -9,7 +10,9 @@ Number::Number(float val) : Object{} {
 	this->val = val;
 	type = "Number";
 
+	addFnProperty("__to_string__",	(Object::unoFn) &Number::toString);
 	addFnProperty("__negate__",		(Object::unoFn) &Number::negate);
+
 	addFnProperty("__plus__",		(Object::binFn) &Number::add);
 	addFnProperty("__minus__",		(Object::binFn) &Number::sub);
 	addFnProperty("__star__",		(Object::binFn) &Number::mult);
@@ -24,9 +27,14 @@ Number::Number(float val) : Object{} {
 
 }
 
+Object* Number::toString() {
+	if (val == (int)val) return new Str(to_string((int)val));
+	return new Str(to_string(val));
+}
 Object* Number::negate() {
 	return new Number(-val);
 }
+
 Object* Number::add(Object* b) {
 	if(b->checkType("Number") != 0) return new Error("Number does not support adding wtih " + b->getType() + ".");
 	float bVal = ((Number*)b)->getVal();
@@ -77,11 +85,6 @@ Object* Number::lessEqual(Object* b) {
 	if (b->checkType("Number") != 0) return new Error("Number does not support comparing values wtih " + b->getType() + ".");
 	float bVal = ((Number*)b)->getVal();
 	return new Bool(val <= bVal);
-}
-
-string Number::toString() {
-	if(val == (int)val) return to_string((int)val);
-	return to_string(val);
 }
 
 float Number::getVal() {

@@ -8,8 +8,7 @@
 
 class Null : public Object {
 private:
+	Object* toString();
 public:
 	Null();
-
-	std::string toString() override;
 };

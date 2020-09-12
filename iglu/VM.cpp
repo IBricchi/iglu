@@ -140,7 +140,7 @@ void VM::run() {
 			Object* a = popStack();
 			a->dereference();
 			uint8_t fi = readByte();
-			Object* c = (a->*(a->binFns[fi]))(b);
+			Object* c = (a->*a->binFns[fi])(b);
 			b->removeImortality();
 			a->removeImortality();
 			c->giveImortality();
@@ -203,14 +203,16 @@ void VM::run() {
 		case OpCode::RETURN:
 			leaveChunk();
 			break;
-		case OpCode::POP_STACK:
+		case OpCode::POP_STACK: {
 			//debuging
-			cout << stack.back()->getType() << ": " << stack.back()->toString() << endl;
+			Str* a = (Str*) (stack.back()->*stack.back()->unoFns[0])();
+			cout << stack.back()->getType() << ": " << a->getVal() << endl;
 
 			// actual code
 			Object* obj = popStack();
 			obj->removeImortality();
 			break;
+		}
 		}
 	}
 }
@@ -256,7 +258,7 @@ void VM::leaveChunk() {
 bool VM::callFunction(Object* obj, string name) {
 	auto it = obj->properties.find(name);
 	if (it != obj->properties.end()) {
-		intoChunk(it->second);
+		intoChunk(it->second.second);
 		return true;
 	}
 	return false;

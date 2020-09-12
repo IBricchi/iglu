@@ -11,6 +11,8 @@ class Str : public Object
 private:
 	std::string val;
 
+	Object* toString();
+
 	Object* concat(Object*);
 	Object* compare(Object*);
 	Object* notCompare(Object*);
@@ -18,6 +20,5 @@ public:
 	Str(std::string);
 	Str(std::string*);
 
-	std::string toString() override;
 	std::string getVal();
 };
