@@ -16,4 +16,7 @@ public:
 	Error(std::string);
 
 	std::string getMessage();
+
+	//debugging shit
+	std::string debugToString() override;
 };

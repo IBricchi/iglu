@@ -57,3 +57,9 @@ LinkedBinFn Str::notCompare = LinkedBinFn((Object::binFn) &Str::notCompareFn);
 string Str::getVal() {
 	return val;
 }
+
+//debugging shit
+
+string Str::debugToString() {
+	return val;
+}

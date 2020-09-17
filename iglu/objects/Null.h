@@ -12,4 +12,6 @@ private:
 	static LinkedUnoFn toString;
 public:
 	Null();
+
+	std::string debugToString() override;
 };

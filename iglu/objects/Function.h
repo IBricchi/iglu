@@ -30,6 +30,9 @@ public:
 	Chunk* getChunk();
 	static void linkFns();
 	void virtual setupLinks();
+
+	// debugging shit
+	std::string debugToString() override;
 };
 
 #include "LinkedUnoFn.h"

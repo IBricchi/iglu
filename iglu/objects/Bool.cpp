@@ -44,3 +44,8 @@ LinkedBinFn Bool::notEqual = LinkedBinFn((Object::binFn) &Bool::notEqualFn);
 bool Bool::getVal() {
 	return val;
 }
+
+// debugging shit
+string Bool::debugToString() {
+	return val?"true":"false";
+}

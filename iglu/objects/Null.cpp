@@ -15,3 +15,8 @@ Object* Null::toStringFn() {
 	return new Str("null");
 }
 LinkedUnoFn Null::toString = LinkedUnoFn((Object::unoFn) &Null::toStringFn);
+
+// debugging shit
+string Null::debugToString() {
+	return "null";
+}

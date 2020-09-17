@@ -11,6 +11,7 @@ class LinkedBinFn : public Function {
 public:
 	LinkedBinFn(Object::binFn);
 	void setupLinks() override;
+	Object* callFn(Object*, Object*);
 private:
 	Object::binFn fn;
 

@@ -51,4 +51,7 @@ public:
 	void removeReference(std::string);
 	void giveImortality();
 	void removeImortality();
+
+	// debugging shit
+	std::string virtual debugToString();
 };

@@ -41,4 +41,7 @@ public:
 	Number(float);
 
 	float getVal();
+
+	// debugging shit
+	std::string debugToString() override;
 };

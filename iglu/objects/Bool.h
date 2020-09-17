@@ -25,4 +25,7 @@ public:
 	Bool(bool);
 
 	bool getVal();
+
+	// debugging shit
+	std::string debugToString() override;
 };

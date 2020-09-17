@@ -63,3 +63,8 @@ void Function::linkFns() {
 void Function::setupLinks() {
 	throw exception("Cannot call setupLinks on a non linked function");
 }
+
+// debugging shit
+string Function::debugToString() {
+	return "Function";
+}

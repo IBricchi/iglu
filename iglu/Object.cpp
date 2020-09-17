@@ -143,3 +143,9 @@ void Object::removeImortality() {
 		delete this;
 	}
 }
+
+// debugging shit
+
+string Object::debugToString() {
+	return "Object";
+}

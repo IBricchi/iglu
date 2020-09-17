@@ -20,3 +20,8 @@ Object* Error::toStringFn() {
 	return new Str("Error ("+message+")");
 }
 LinkedUnoFn Error::toString = LinkedUnoFn((Object::unoFn) &Error::toStringFn);
+
+// debugging shit
+string Error::debugToString() {
+	return "Error (" + message + ")";
+}

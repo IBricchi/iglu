@@ -124,36 +124,39 @@ void VM::run() {
 			tryCallFunction(a, "__less_equal__", "<=");
 			break;
 		}
-		//case OpCode::UNARY_FUNC_CALL:{
-		//	Object* a = popStack();
-		//	a->dereference();
-		//	uint8_t fi = readByte();
-		//	Object* b = (a->*a->unoFns[fi])();
-		//	a->removeImortality();
-		//	b->giveImortality();
+		case OpCode::UNARY_FUNC_CALL:{
+			LinkedUnoFn* fn = (LinkedUnoFn*) popStack();
+			fn->dereference();
+			Object* a = popStack();
+			a->dereference();
+			Object* b = fn->callFn(a);
+			fn->removeImortality();
+			a->removeImortality();
+			b->giveImortality();
 
-		//	// check if error object is returned
-		//	if (b->checkType("Error") >= 0) runtimeErrorObject(b);
-		//	else pushStack(b);
-		//	break;
-		//}
-		//case OpCode::BINARY_FUNC_CALL:{
-		//	Object* b = popStack();
-		//	b->dereference();
-		//	Object* a = popStack();
-		//	a->dereference();
-		//	uint8_t fi = readByte();
-		//	Object* c = (a->*a->binFns[fi])(b);
-		//	b->removeImortality();
-		//	a->removeImortality();
-		//	c->giveImortality();
+			// check if error object is returned
+			if (b->checkType("Error") >= 0) runtimeErrorObject(b);
+			else pushStack(b);
+			break;
+		}
+		case OpCode::BINARY_FUNC_CALL:{
+			LinkedBinFn* fn = (LinkedBinFn*) popStack();
+			fn->dereference();
+			Object* b = popStack();
+			b->dereference();
+			Object* a = popStack();
+			a->dereference();
+			Object* c = fn->callFn(a, b);
+			b->removeImortality();
+			a->removeImortality();
+			c->giveImortality();
 
-		//	// check if error object is returned
-		//	if (c->checkType("Error") >= 0) runtimeErrorObject(c);
-		//	else pushStack(c);
+			// check if error object is returned
+			if (c->checkType("Error") >= 0) runtimeErrorObject(c);
+			else pushStack(c);
 
-		//	break;
-		//}
+			break;
+		}
 		case OpCode::DECLARE_VAR:{
 			string* name = readConstant().as.String;
 			if (variables.find(*name) != variables.end()) { // TODO! come back when different scopes exists
@@ -208,8 +211,8 @@ void VM::run() {
 			break;
 		case OpCode::POP_STACK: {
 			////debuging
-			//Str* a = (Str*) (stack.back()->*stack.back()->unoFns[0])();
-			//cout << stack.back()->getType() << ": " << a->getVal() << endl;
+			Object* a = stack.back();
+			cout << stack.back()->getType() << ": " << a->debugToString() << endl;
 
 			// actual code
 			Object* obj = popStack();
@@ -261,6 +264,7 @@ void VM::leaveChunk() {
 bool VM::callFunction(Object* obj, string name) {
 	auto it = obj->properties.find(name);
 	if (it != obj->properties.end()) {
+		stack.push_back(it->second);
 		intoChunk( ((Function*)it->second)->getChunk() );
 		return true;
 	}

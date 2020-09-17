@@ -103,3 +103,9 @@ LinkedBinFn Number::lessEqual = LinkedBinFn((Object::binFn) & Number::lessEqualF
 float Number::getVal() {
 	return val;
 }
+
+// debugging shit
+
+string Number::debugToString() {
+	return to_string(val);
+}

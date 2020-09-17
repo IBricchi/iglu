@@ -25,4 +25,7 @@ public:
 	Str(std::string*);
 
 	std::string getVal();
+
+	// debugging shit
+	std::string debugToString() override;
 };
