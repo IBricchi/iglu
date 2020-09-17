@@ -11,11 +11,15 @@ class Str : public Object
 private:
 	std::string val;
 
-	Object* toString();
+	Object* toStringFn();
+	static LinkedUnoFn toString;
 
-	Object* concat(Object*);
-	Object* compare(Object*);
-	Object* notCompare(Object*);
+	Object* concatFn(Object*);
+	static LinkedBinFn concat;
+	Object* compareFn(Object*);
+	static LinkedBinFn compare;
+	Object* notCompareFn(Object*);
+	static LinkedBinFn notCompare;
 public:
 	Str(std::string);
 	Str(std::string*);

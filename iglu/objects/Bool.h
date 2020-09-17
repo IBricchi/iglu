@@ -11,11 +11,15 @@ class Bool : public Object
 private:
 	bool val;
 
-	Object* toString();
-	Object* _not();
+	Object* toStringFn();
+	static LinkedUnoFn toString;
+	Object* _notFn();
+	static LinkedUnoFn _not;
 
-	Object* equal(Object*);
-	Object* notEqual(Object*);
+	Object* equalFn(Object*);
+	static LinkedBinFn equal;
+	Object* notEqualFn(Object*);
+	static LinkedBinFn notEqual;
 
 public:
 	Bool(bool);

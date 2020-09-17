@@ -14,3 +14,6 @@ struct Constant;
 class Error;
 class Null;
 class Number;
+class Function;
+class LinkedUnoFn;
+class LinkedBinFn;

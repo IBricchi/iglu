@@ -1,23 +1,32 @@
 #include "Object.h"
 #include "objects/Str.h"
+#include "objects/Function.h"
 
 using namespace std;
 
 Object::Object() {
 	type = "Object";
-	properties = unordered_map<string, pair<int, Chunk*>>();
-	unoFns = vector<Object::unoFn>();
-	binFns = vector<Object::binFn>();
+	properties = unordered_map<string, Object*>();
+	//unoFns = vector<Object::unoFn>();
+	//binFns = vector<Object::binFn>();
 
-	references = unordered_multiset<string>();
+	references = unordered_multiset<string>({"#"});
 	currentReference = queue<string>();
 
-	addFnProperty("__to_string__", (Object::unoFn) &Object::toString);
+	addProperty("__to_string__", &toString);
+}
+
+Object::Object(bool) {
+	type = "Object";
+	properties = unordered_map<string, Object*>();
+
+	references = unordered_multiset<string>({ "#" });
+	currentReference = queue<string>();
 }
 
 Object::~Object() {
 	for (auto i = properties.begin(); i != properties.end(); i++) {
-		delete i->second.second;
+		i->second->removeReference(i->first);
 	}
 }
 
@@ -37,35 +46,55 @@ Chunk* Object::generateBinFnChunk(int index) {
 	return chunk;
 }
 
-void Object::addFnProperty(string prop, Object::unoFn fn) {
-	int index;
-	if (properties.find(prop) == properties.end()) {
-		index = unoFns.size();
-		unoFns.push_back(fn);
-	}
-	else {
-		index = properties[prop].first;
-		unoFns[index] = fn;
+//void Object::addFnProperty(string prop, Object::unoFn fn) {
+//	int index;
+//	if (properties.find(prop) == properties.end()) {
+//		index = unoFns.size();
+//		unoFns.push_back(fn);
+//	}
+//	else {
+//		index = properties[prop].first;
+//		unoFns[index] = fn;
+//
+//		delete properties[prop].second;
+//	}
+//	properties[prop] = pair<int, Chunk*>{index, generateUnoFnChunk(index)};
+//}
+//
+//void Object::addFnProperty(string prop, Object::binFn fn) {
+//	int index;
+//	if (properties.find(prop) == properties.end()) {
+//		index = binFns.size();
+//		binFns.push_back(fn);
+//	}
+//	else {
+//		index = properties[prop].first;
+//		binFns[index] = fn;
+//
+//		delete properties[prop].second;
+//	}
+//
+//	properties[prop] = pair<int, Chunk*>{index, generateBinFnChunk(index)};
+//}
 
-		delete properties[prop].second;
-	}
-	properties[prop] = pair<int, Chunk*>{index, generateUnoFnChunk(index)};
+void Object::addFnProperty(string prop, Object::unoFn fn) {
+	Object* lf = new LinkedUnoFn(fn);
+	addProperty(prop, lf);
 }
 
 void Object::addFnProperty(string prop, Object::binFn fn) {
-	int index;
-	if (properties.find(prop) == properties.end()) {
-		index = binFns.size();
-		binFns.push_back(fn);
-	}
-	else {
-		index = properties[prop].first;
-		binFns[index] = fn;
+	Object* lf = new LinkedBinFn(fn);
+	addProperty(prop, lf);
+}
 
-		delete properties[prop].second;
+void Object::addProperty(string prop, Object* obj) {
+	auto it = properties.find(prop);
+	obj->addReference(prop);
+	if (it != properties.end()){
+		Object* old = properties[prop];
+		old->removeReference(prop);
 	}
-
-	properties[prop] = pair<int, Chunk*>{index, generateBinFnChunk(index)};
+	properties[prop] = obj;
 }
 
 string Object::getType() {
@@ -77,9 +106,10 @@ int Object::checkType(string type) {
 	return -1;
 }
 
-Object* Object::toString() {
+Object* Object::toStringFn() {
 	return new Str("Object");
 }
+LinkedUnoFn Object::toString = LinkedUnoFn((Object::unoFn) &Object::toStringFn);
 
 void Object::reference(string var) {
 	currentReference.push(var);

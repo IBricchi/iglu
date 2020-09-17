@@ -11,20 +11,32 @@ class Number : public Object
 private:
 	float val;
 
-	Object* toString();
-	Object* negate();
+	Object* toStringFn();
+	static LinkedUnoFn toString;
+	Object* negateFn();
+	static LinkedUnoFn negate;
 
-	Object* add(Object*);
-	Object* sub(Object*);
-	Object* mult(Object*);
-	Object* div(Object*);
+	Object* addFn(Object*);
+	static LinkedBinFn add;
+	Object* subFn(Object*);
+	static LinkedBinFn sub;
+	Object* multFn(Object*);
+	static LinkedBinFn mult;
+	Object* divFn(Object*);
+	static LinkedBinFn div;
 
-	Object* equal(Object*);
-	Object* notEqual(Object*);
-	Object* greater(Object*);
-	Object* greaterEqual(Object*);
-	Object* less(Object*);
-	Object* lessEqual(Object*);
+	Object* equalFn(Object*);
+	static LinkedBinFn equal;
+	Object* notEqualFn(Object*);
+	static LinkedBinFn notEqual;
+	Object* greaterFn(Object*);
+	static LinkedBinFn greater;
+	Object* greaterEqualFn(Object*);
+	static LinkedBinFn greaterEqual;
+	Object* lessFn(Object*);
+	static LinkedBinFn less;
+	Object* lessEqualFn(Object*);
+	static LinkedBinFn lessEqual;
 public:
 	Number(float);
 

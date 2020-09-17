@@ -3,7 +3,6 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-#include <utility>
 #include <queue>
 #include <string>
 
@@ -26,15 +25,20 @@ protected:
 	Chunk* generateBinFnChunk(int);
 	void addFnProperty(std::string, Object::unoFn);
 	void addFnProperty(std::string, Object::binFn);
+
+	// cpp to iglu function linking
+	void addProperty(std::string, Object*);
 	
 	// cpp functions to link to iglu
-	Object* toString();
+	Object* toStringFn();
+	static LinkedUnoFn toString;
 public:
-	std::unordered_map<std::string, std::pair<int, Chunk*>> properties;
-	std::vector<Object::unoFn> unoFns;
-	std::vector<Object::binFn> binFns;
+	std::unordered_map<std::string, Object*> properties;
+	//std::vector<Object::unoFn> unoFns;
+	//std::vector<Object::binFn> binFns;
 
 	Object();
+	Object(bool);
 	~Object();
 
 	std::string getType();

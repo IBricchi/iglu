@@ -4,6 +4,7 @@
 
 #include "objects/Bool.h"
 #include "objects/Error.h"
+#include "objects/Function.h"
 #include "objects/Number.h"
 #include "objects/Null.h"
 #include "objects/Str.h"
@@ -17,6 +18,8 @@ VM::VM() {
 	pc = vector<uint8_t*>();
 	stack = vector<Object*>();
 	hadError = false;
+
+	Function::linkFns();
 }
 
 void VM::interpret(Chunk* chunk) {
@@ -121,36 +124,36 @@ void VM::run() {
 			tryCallFunction(a, "__less_equal__", "<=");
 			break;
 		}
-		case OpCode::UNARY_FUNC_CALL:{
-			Object* a = popStack();
-			a->dereference();
-			uint8_t fi = readByte();
-			Object* b = (a->*a->unoFns[fi])();
-			a->removeImortality();
-			b->giveImortality();
+		//case OpCode::UNARY_FUNC_CALL:{
+		//	Object* a = popStack();
+		//	a->dereference();
+		//	uint8_t fi = readByte();
+		//	Object* b = (a->*a->unoFns[fi])();
+		//	a->removeImortality();
+		//	b->giveImortality();
 
-			// check if error object is returned
-			if (b->checkType("Error") >= 0) runtimeErrorObject(b);
-			else pushStack(b);
-			break;
-		}
-		case OpCode::BINARY_FUNC_CALL:{
-			Object* b = popStack();
-			b->dereference();
-			Object* a = popStack();
-			a->dereference();
-			uint8_t fi = readByte();
-			Object* c = (a->*a->binFns[fi])(b);
-			b->removeImortality();
-			a->removeImortality();
-			c->giveImortality();
+		//	// check if error object is returned
+		//	if (b->checkType("Error") >= 0) runtimeErrorObject(b);
+		//	else pushStack(b);
+		//	break;
+		//}
+		//case OpCode::BINARY_FUNC_CALL:{
+		//	Object* b = popStack();
+		//	b->dereference();
+		//	Object* a = popStack();
+		//	a->dereference();
+		//	uint8_t fi = readByte();
+		//	Object* c = (a->*a->binFns[fi])(b);
+		//	b->removeImortality();
+		//	a->removeImortality();
+		//	c->giveImortality();
 
-			// check if error object is returned
-			if (c->checkType("Error") >= 0) runtimeErrorObject(c);
-			else pushStack(c);
+		//	// check if error object is returned
+		//	if (c->checkType("Error") >= 0) runtimeErrorObject(c);
+		//	else pushStack(c);
 
-			break;
-		}
+		//	break;
+		//}
 		case OpCode::DECLARE_VAR:{
 			string* name = readConstant().as.String;
 			if (variables.find(*name) != variables.end()) { // TODO! come back when different scopes exists
@@ -204,9 +207,9 @@ void VM::run() {
 			leaveChunk();
 			break;
 		case OpCode::POP_STACK: {
-			//debuging
-			Str* a = (Str*) (stack.back()->*stack.back()->unoFns[0])();
-			cout << stack.back()->getType() << ": " << a->getVal() << endl;
+			////debuging
+			//Str* a = (Str*) (stack.back()->*stack.back()->unoFns[0])();
+			//cout << stack.back()->getType() << ": " << a->getVal() << endl;
 
 			// actual code
 			Object* obj = popStack();
@@ -258,7 +261,7 @@ void VM::leaveChunk() {
 bool VM::callFunction(Object* obj, string name) {
 	auto it = obj->properties.find(name);
 	if (it != obj->properties.end()) {
-		intoChunk(it->second.second);
+		intoChunk( ((Function*)it->second)->getChunk() );
 		return true;
 	}
 	return false;

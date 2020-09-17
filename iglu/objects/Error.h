@@ -10,7 +10,8 @@ class Error : public Object {
 private:
 	std::string message;
 
-	Object* toString();
+	Object* toStringFn();
+	static LinkedUnoFn toString;
 public:
 	Error(std::string);
 

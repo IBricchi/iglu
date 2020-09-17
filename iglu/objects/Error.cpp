@@ -1,6 +1,7 @@
 #include "Error.h"
 
 #include "Str.h"
+#include "Function.h"
 
 using namespace std;
 
@@ -8,13 +9,14 @@ Error::Error(string message) : Object{} {
 	type = "Error";
 	this->message = message;
 
-	addFnProperty("__to_string__", (Object::unoFn) &Error::toString);
+	addProperty("__to_string__", &toString);
 }
 
 string Error::getMessage() {
 	return message;
 }
 
-Object* Error::toString() {
+Object* Error::toStringFn() {
 	return new Str("Error ("+message+")");
 }
+LinkedUnoFn Error::toString = LinkedUnoFn((Object::unoFn) &Error::toStringFn);

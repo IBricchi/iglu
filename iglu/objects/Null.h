@@ -8,7 +8,8 @@
 
 class Null : public Object {
 private:
-	Object* toString();
+	Object* toStringFn();
+	static LinkedUnoFn toString;
 public:
 	Null();
 };

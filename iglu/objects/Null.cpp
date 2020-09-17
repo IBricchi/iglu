@@ -1,15 +1,17 @@
 #include "Null.h"
 
 #include "Str.h"
+#include "Function.h"
 
 using namespace std;
 
 Null::Null(): Object{} {
 	type = "null";
 
-	addFnProperty("__to_string__", (Object::unoFn) &Null::toString);
+	addProperty("__to_string__", &toString);
 }
 
-Object* Null::toString() {
+Object* Null::toStringFn() {
 	return new Str("null");
 }
+LinkedUnoFn Null::toString = LinkedUnoFn((Object::unoFn) &Null::toStringFn);
