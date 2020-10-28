@@ -13,11 +13,16 @@
 #define FRAME_MAX 64;
 #define STACK_MAX (FRAME_MAX * (UINT8_MAX + 1));
 
+struct RefObj {
+	std::string* ref;
+	Object* obj;
+};
+
 class VM
 {
 private:
 	std::vector<Chunk*> chunks;
-	std::vector<Object*> stack;
+	std::vector<RefObj> stack;
 	std::vector<uint8_t*> pc;
 	std::unordered_set<Object*> objs;
 
@@ -27,10 +32,17 @@ private:
 	uint8_t readByte();
 	Constant readConstant();
 
-	Object* popStack();
-	Object* topStack();
-	Object* stackAt(int);
+	std::string popStackRef();
+	Object* popStackObj();
+
+	std::string topStackRef();
+	Object* topStackObj();
+	
+	std::string stackAtRef(int);
+	Object* stackAtObj(int);
+
 	void pushStack(Object*);
+	void pushStack(std::string*);
 
 	void intoChunk(Chunk*);
 	void leaveChunk();

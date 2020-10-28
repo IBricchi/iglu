@@ -16,7 +16,7 @@ union As {
 
 	As(bool val) {Bool = val;}
 	As(float val) {Number = val;}
-	As(std::string& val) {String = new std::string(val);}
+	As(std::string& val) {String = new std::string(val);} // !TODO delete string 
 };
 
 struct Constant

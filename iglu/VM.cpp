@@ -11,12 +11,12 @@
 
 using namespace std;
 
-// API
 
+// API
 VM::VM() {
 	chunks = vector<Chunk*>();
 	pc = vector<uint8_t*>();
-	stack = vector<Object*>();
+	stack = vector<RefObj>();
 	objs = unordered_set<Object*>();
 	hadError = false;
 
@@ -60,77 +60,103 @@ void VM::run() {
 				break;
 			}
 			}
-			objs.insert(topStack());
+			objs.insert(topStackObj());
 			break;
 		}
 		// arithmetic
 		case OpCode::NEGATE:{
-			Object* a = topStack();
+			Object* a = topStackObj();
+			if (a->checkType("Error") >= 0) { runtimeErrorObject(a); break; }
+
 			tryCallFunction(a, "__negate__", "(-)");
 			break;
 		}
 		case OpCode::PLUS:{
-			Object* a = stackAt(1);
+			Object* a = stackAtObj(1);
+			if (a->checkType("Error") >= 0) { runtimeErrorObject(a); break; }
+
 			tryCallFunction(a, "__plus__", "+");
 			break;
 		}
 		case OpCode::MINUS:{
-			Object* a = stackAt(1);
+			Object* a = stackAtObj(1);
+			if (a->checkType("Error") >= 0) { runtimeErrorObject(a); break; }
+
 			tryCallFunction(a, "__minus__", "-");
 			break;
 		}
 		case OpCode::STAR:{
-			Object* a = stackAt(1);
+			Object* a = stackAtObj(1);
+			if (a->checkType("Error") >= 0) { runtimeErrorObject(a); break; }
+
 			tryCallFunction(a, "__star__", "*");
 			break;
 		}
 		case OpCode::SLASH:{
-			Object* a = stackAt(1);
+			Object* a = stackAtObj(1);
+			if (a->checkType("Error") >= 0) { runtimeErrorObject(a); break; }
+
 			tryCallFunction(a, "__slash__", "/");
 			break;
 		}
 		// boolean
 		case OpCode::BANG: {
-			Object* a = topStack();
+			Object* a = topStackObj();
+			if (a->checkType("Error") >= 0) { runtimeErrorObject(a); break; }
+
 			tryCallFunction(a, "__not__", "!");
 			break;
 		}
 		case OpCode::EQUAL_EQUAL: {
-			Object* a = stackAt(1);
+			Object* a = stackAtObj(1);
+			if (a->checkType("Error") >= 0) { runtimeErrorObject(a); break; }
+
 			tryCallFunction(a, "__equal_equal__", "==");
 			break;
 		}
 		case OpCode::BANG_EQUAL: {
-			Object* a = stackAt(1);
+			Object* a = stackAtObj(1);
+			if (a->checkType("Error") >= 0) { runtimeErrorObject(a); break; }
+
 			tryCallFunction(a, "__not_equal__", "!=");
 			break;
 		}
 		case OpCode::GREATER: {
-			Object* a = stackAt(1);
+			Object* a = stackAtObj(1);
+			if (a->checkType("Error") >= 0) { runtimeErrorObject(a); break; }
+
 			tryCallFunction(a, "__greater__", ">");
 			break;
 		}
 		case OpCode::GREATER_EQUAL: {
-			Object* a = stackAt(1);
+			Object* a = stackAtObj(1);
+			if (a->checkType("Error") >= 0) { runtimeErrorObject(a); break; }
+
 			tryCallFunction(a, "__greater_equal__", ">=");
 			break;
 		}
 		case OpCode::LESS: {
-			Object* a = stackAt(1);
+			Object* a = stackAtObj(1);
+			if (a->checkType("Error") >= 0) { runtimeErrorObject(a); break; }
+
 			tryCallFunction(a, "__less__", "<");
 			break;
 		}
 		case OpCode::LESS_EQUAL: {
-			Object* a = stackAt(1);
+			Object* a = stackAtObj(1);
+			if (a->checkType("Error") >= 0) { runtimeErrorObject(a); break; }
+
 			tryCallFunction(a, "__less_equal__", "<=");
 			break;
 		}
 		// cpp functions
 		case OpCode::UNARY_FUNC_CALL:{
-			LinkedUnoFn* fn = (LinkedUnoFn*) popStack();
-			fn->dereference();
-			Object* a = popStack();
-			a->dereference();
+			LinkedUnoFn* fn = (LinkedUnoFn*) popStackObj();
+			if (fn->checkType("Error") >= 0) { runtimeErrorObject(fn); break; }
+
+			Object* a = popStackObj();
+			if (a->checkType("Error") >= 0) { runtimeErrorObject(a); break; }
+
 			Object* b = fn->callFn(a);
 
 			// check if error object is returned
@@ -143,12 +169,16 @@ void VM::run() {
 			break;
 		}
 		case OpCode::BINARY_FUNC_CALL:{
-			LinkedBinFn* fn = (LinkedBinFn*) popStack();
-			fn->dereference();
-			Object* b = popStack();
-			b->dereference();
-			Object* a = popStack();
-			a->dereference();
+			LinkedBinFn* fn = (LinkedBinFn*) popStackObj();
+			if (fn->checkType("Error") >= 0) { runtimeErrorObject(fn); break; }
+
+			Object* b = popStackObj();
+			if (b->checkType("Error") >= 0) { runtimeErrorObject(b); break; }
+
+			Object* a = popStackObj();
+			if (a->checkType("Error") >= 0) { runtimeErrorObject(a); break; }
+
+
 			Object* c = fn->callFn(a, b);
 
 			// check if error object is returned
@@ -168,15 +198,16 @@ void VM::run() {
 				break;
 			}
 			Object* nullObj = new Null();
-			if(variables.find(*name) == variables.end()) variables.emplace(*name, vector<Object*>{nullObj});
+			objs.insert(nullObj);
+			if(variables.find(*name) == variables.end()) variables.emplace(*name, vector<Object*>{nullObj}); // this will be necessary later
 			else variables[*name].push_back(nullObj);
 			break;
 		}
 		case OpCode::DEFINE_VAR: {
-			Object* b = popStack();
-			b->dereference();
-			Object* a = popStack();
-			string name = a->dereference();
+			Object* b = popStackObj();
+			if (b->checkType("Error") >= 0) { runtimeErrorObject(b); break; }
+
+			string name = popStackRef();
 			
 			if(variables.find(name) == variables.end()){
 				runtimeError("Cannot assign to undeclared variable '" + name + "'.");
@@ -192,28 +223,23 @@ void VM::run() {
 			
 			break;
 		}
-		case OpCode::GET_VAR: {
+		case OpCode::GET_VAR: { // TODO! change from get_var to identifier
 			string* name = readConstant().as.String;
-			if(variables.find(*name) == variables.end()){
-				runtimeError("Variable '" + *name + "' has not been declared.");
-				break;
-			}
-			pushStack(variables[*name].back());
-			topStack()->reference(*name);
+			pushStack(name);
 			break;
 		}
 		case OpCode::GET_MEMBER: {
-			Object* b = popStack();
-			string member = b->dereference();
-			Object*a = popStack();
-			string name = a->dereference();
+			string member = popStackRef();
+			Object* a = topStackObj();
+			if(a->checkType("Error") >= 0) {runtimeErrorObject(a); break;}
+
+			string name = popStackRef();
 			
 			if (a->properties.find(member) == a->properties.end()) {
-				runtimeError("Variable '" + name + "' has no");
+				runtimeError("Variable '" + name + "' has no propery '" + member + "'.");
 				break;
 			}
 			pushStack(a->properties[member]);
-			topStack()->reference(member);
 			break;
 		}
 		// return
@@ -221,12 +247,12 @@ void VM::run() {
 			leaveChunk();
 			break;
 		case OpCode::POP_STACK: {
+			Object* out = popStackObj();
+			if(out->checkType("Error") >= 0) {runtimeErrorObject(out); break; }
+			
 			// debuging
-			Object* a = stack.back();
-			cout << stack.back()->getType() << ": " << a->debugToString() << endl;
-
-			// actual code
-			Object* obj = popStack();
+			cout << out->getType() << ": " << out->debugToString() << endl;
+			
 			break;
 		}
 		}
@@ -243,22 +269,74 @@ inline Constant VM::readConstant() {
 	return chunks.back()->constants[*(pc.back()++)];
 }
 
-inline Object* VM::popStack() {
-	Object* poped = stack.back();
+inline string VM::popStackRef() {
+	RefObj popped = stack.back();
 	stack.pop_back();
-	return poped;
+	return *popped.ref;
+}
+Object* VM::popStackObj() {
+	RefObj ro = stack.back();
+	stack.pop_back();
+
+	if (ro.obj == nullptr) {
+		string name = *ro.ref;
+		auto it = variables.find(name);
+		if (it == variables.end()) {
+			Object* error = new Error("Variable '" + name + "' has not been declared.");
+			pushStack(error);
+			return error;
+		}
+		ro.obj = it->second.back();
+	}
+
+	return ro.obj;
 }
 
-inline Object* VM::topStack() {
-	return stack.back();
+inline string VM::topStackRef() {
+	return *stack.back().ref;
+}
+Object* VM::topStackObj() {
+	RefObj ro = stack.back();
+
+	if (ro.obj == nullptr) {
+		string name = *ro.ref;
+		auto it = variables.find(name);
+		if (it == variables.end()) {
+			Object* error = new Error("Variable '" + name + "' has not been declared.");
+			pushStack(error);
+			return error;
+		}
+		ro.obj = it->second.back();
+	}
+
+	return ro.obj;
 }
 
-inline Object* VM::stackAt(int n) {
-	return *(stack.end() - 1 - n);
+inline string VM::stackAtRef(int n) {
+	return *(stack.end() - 1 - n)->ref;
+}
+Object* VM::stackAtObj(int n) {
+	RefObj ro = *(stack.end() - 1 - n);
+
+	if (ro.obj == nullptr) {
+		string name = *ro.ref;
+		auto it = variables.find(name);
+		if (it == variables.end()) {
+			Object* error = new Error("Variable '" + name + "' has not been declared.");
+			pushStack(error);
+			return error;
+		}
+		ro.obj = it->second.back();
+	}
+
+	return ro.obj;
 }
 
+inline void VM::pushStack(string* ref) {
+	stack.push_back(RefObj{ref,nullptr});
+}
 inline void VM::pushStack(Object* obj) {
-	stack.push_back(obj);
+	stack.push_back(RefObj{nullptr,obj});
 }
 
 void VM::intoChunk(Chunk* chunk) {
@@ -273,7 +351,7 @@ void VM::leaveChunk() {
 }
 
 void VM::cleanGarbage() {
-	if(stack.size() > 0) topStack()->mark();
+	if(stack.size() > 0 && stack.back().obj != nullptr) topStackObj()->mark();
 	for (auto i : variables) {
 		for (auto j : i.second) {
 			j->mark();
@@ -294,7 +372,7 @@ void VM::cleanGarbage() {
 bool VM::callFunction(Object* obj, string name) {
 	auto it = obj->properties.find(name);
 	if (it != obj->properties.end()) {
-		stack.push_back(it->second);
+		pushStack(it->second);
 		intoChunk( ((Function*)it->second)->getChunk() );
 		return true;
 	}
