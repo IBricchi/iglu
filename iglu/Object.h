@@ -17,7 +17,6 @@ public:
 	typedef Object* (Object::*binFn)(Object*);
 protected:
 	std::string type;
-	std::unordered_multiset<std::string> references;
 	std::queue<std::string> currentReference;
 
 	// cpp to iglu function linking
@@ -39,18 +38,12 @@ public:
 
 	Object();
 	Object(bool);
-	~Object();
 
 	std::string getType();
 	int checkType(std::string);
 
 	void reference(std::string);
 	std::string dereference();
-
-	void addReference(std::string);
-	void removeReference(std::string);
-	void giveImortality();
-	void removeImortality();
 
 	// debugging shit
 	std::string virtual debugToString();

@@ -10,24 +10,12 @@ Object::Object() {
 	//unoFns = vector<Object::unoFn>();
 	//binFns = vector<Object::binFn>();
 
-	references = unordered_multiset<string>({"#"});
-	currentReference = queue<string>();
-
 	addProperty("__to_string__", &toString);
 }
 
 Object::Object(bool) {
 	type = "Object";
 	properties = unordered_map<string, Object*>();
-
-	references = unordered_multiset<string>({ "#" });
-	currentReference = queue<string>();
-}
-
-Object::~Object() {
-	for (auto i = properties.begin(); i != properties.end(); i++) {
-		i->second->removeReference(i->first);
-	}
 }
 
 Chunk* Object::generateUnoFnChunk(int index) {
@@ -89,10 +77,8 @@ void Object::addFnProperty(string prop, Object::binFn fn) {
 
 void Object::addProperty(string prop, Object* obj) {
 	auto it = properties.find(prop);
-	obj->addReference(prop);
 	if (it != properties.end()){
 		Object* old = properties[prop];
-		old->removeReference(prop);
 	}
 	properties[prop] = obj;
 }
@@ -120,29 +106,6 @@ string Object::dereference() {
 	string front = currentReference.front();
 	currentReference.pop();
 	return front;
-}
-
-void Object::addReference(string var) {
-	references.emplace(var);
-}
-
-void Object::removeReference(string var) {
-	auto a = references.find(var);
-	references.erase(references.find(var));
-	if (references.empty()) {
-		delete this;
-	}
-}
-
-void Object::giveImortality() {
-	references.emplace("#");
-}
-
-void Object::removeImortality() {
-	references.erase(references.find("#"));
-	if (references.empty()) {
-		delete this;
-	}
 }
 
 // debugging shit

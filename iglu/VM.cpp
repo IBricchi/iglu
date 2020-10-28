@@ -43,22 +43,18 @@ void VM::run() {
 			{
 			case ConstType::NILL: {
 				pushStack(new Null());
-				stack.back()->giveImortality();
 				break;
 			}
 			case ConstType::BOOL: {
 				pushStack(new Bool(constant.as.Bool));
-				stack.back()->giveImortality();
 				break;
 			}
 			case ConstType::NUMBER: {
 				pushStack(new Number(constant.as.Number));
-				stack.back()->giveImortality();
 				break;
 			}
 			case ConstType::STRING: {
 				pushStack(new Str(constant.as.String));
-				stack.back()->giveImortality();
 				break;
 			}
 			}
@@ -130,9 +126,6 @@ void VM::run() {
 			Object* a = popStack();
 			a->dereference();
 			Object* b = fn->callFn(a);
-			fn->removeImortality();
-			a->removeImortality();
-			b->giveImortality();
 
 			// check if error object is returned
 			if (b->checkType("Error") >= 0) runtimeErrorObject(b);
@@ -147,9 +140,6 @@ void VM::run() {
 			Object* a = popStack();
 			a->dereference();
 			Object* c = fn->callFn(a, b);
-			b->removeImortality();
-			a->removeImortality();
-			c->giveImortality();
 
 			// check if error object is returned
 			if (c->checkType("Error") >= 0) runtimeErrorObject(c);
@@ -164,7 +154,6 @@ void VM::run() {
 				break;
 			}
 			Object* nullObj = new Null();
-			nullObj->addReference(*name);
 			if(variables.find(*name) == variables.end()) variables.emplace(*name, vector<Object*>{nullObj});
 			else variables[*name].push_back(nullObj);
 			break;
@@ -179,17 +168,11 @@ void VM::run() {
 				runtimeError("Cannot assign to undeclared variable '" + name + "'.");
 				break;
 			}
-			b->addReference(name);
-			a->removeReference(name);
 
 			vector<Object*>* varVec = &variables[name];
 			(*varVec)[varVec->size() - 1] = b;
 
-			b->removeImortality();
-			a->removeImortality();
-
 			Object* nullObj = new Null();
-			nullObj->giveImortality();
 
 			pushStack(nullObj);
 			
@@ -203,7 +186,6 @@ void VM::run() {
 			}
 			pushStack(variables[*name].back());
 			topStack()->reference(*name);
-			topStack()->giveImortality();
 			break;
 		}
 		case OpCode::RETURN:
@@ -216,7 +198,6 @@ void VM::run() {
 
 			// actual code
 			Object* obj = popStack();
-			obj->removeImortality();
 			break;
 		}
 		}
@@ -259,24 +240,24 @@ void VM::intoChunk(Chunk* chunk) {
 void VM::leaveChunk() {
 	pc.pop_back();
 	chunks.pop_back();
-	cleanGarbage(); // TODO! Move to a better location later
+	//cleanGarbage(); // TODO! Move to a better location later
 }
 
-void VM::cleanGarbage() {
-	for (auto i : variables) {
-		for (auto j : i.second) {
-			j.mark();
-		}
-	}
-	for (auto i = objs.rbegin(); i != objs.rend(); i++) {
-		if (!i.checkMark()) {
-			objs.erase((i+1).base());
-		}
-		else {
-			i.unMark();
-		}
-	}
-}
+//void VM::cleanGarbage() {
+//	for (auto i : variables) {
+//		for (auto j : i.second) {
+//			j.mark();
+//		}
+//	}
+//	for (auto i = objs.rbegin(); i != objs.rend(); i++) {
+//		if (!i.checkMark()) {
+//			objs.erase((i+1).base());
+//		}
+//		else {
+//			i.unMark();
+//		}
+//	}
+//}
 
 bool VM::callFunction(Object* obj, string name) {
 	auto it = obj->properties.find(name);
