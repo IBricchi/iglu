@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <string>
-#include <set>
+#include <unordered_set>
 
 #include "common.h"
 
@@ -19,7 +19,7 @@ private:
 	std::vector<Chunk*> chunks;
 	std::vector<Object*> stack;
 	std::vector<uint8_t*> pc;
-	std::set<Object*> objs;
+	std::unordered_set<Object*> objs;
 
 	std::unordered_map<std::string, std::vector<Object*>> variables;
 	

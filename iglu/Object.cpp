@@ -6,15 +6,17 @@ using namespace std;
 
 Object::Object() {
 	type = "Object";
+	currentReference = queue<string>();
+	marked = false;
 	properties = unordered_map<string, Object*>();
-	//unoFns = vector<Object::unoFn>();
-	//binFns = vector<Object::binFn>();
 
 	addProperty("__to_string__", &toString);
 }
 
 Object::Object(bool) {
 	type = "Object";
+	currentReference = queue<string>();
+	marked = false;
 	properties = unordered_map<string, Object*>();
 }
 
@@ -33,37 +35,6 @@ Chunk* Object::generateBinFnChunk(int index) {
 
 	return chunk;
 }
-
-//void Object::addFnProperty(string prop, Object::unoFn fn) {
-//	int index;
-//	if (properties.find(prop) == properties.end()) {
-//		index = unoFns.size();
-//		unoFns.push_back(fn);
-//	}
-//	else {
-//		index = properties[prop].first;
-//		unoFns[index] = fn;
-//
-//		delete properties[prop].second;
-//	}
-//	properties[prop] = pair<int, Chunk*>{index, generateUnoFnChunk(index)};
-//}
-//
-//void Object::addFnProperty(string prop, Object::binFn fn) {
-//	int index;
-//	if (properties.find(prop) == properties.end()) {
-//		index = binFns.size();
-//		binFns.push_back(fn);
-//	}
-//	else {
-//		index = properties[prop].first;
-//		binFns[index] = fn;
-//
-//		delete properties[prop].second;
-//	}
-//
-//	properties[prop] = pair<int, Chunk*>{index, generateBinFnChunk(index)};
-//}
 
 void Object::addFnProperty(string prop, Object::unoFn fn) {
 	Object* lf = new LinkedUnoFn(fn);
@@ -108,8 +79,22 @@ string Object::dereference() {
 	return front;
 }
 
-// debugging shit
+//garbage collection
+void Object::mark() {
+	if(marked) return;
+	marked = true;
+	for (auto i : properties) {
+		i.second->mark();
+	}
+}
+bool Object::checkMark() {
+	return marked;
+}
+void Object::unmark() {
+	marked = false;
+}
 
+// debugging shit
 string Object::debugToString() {
 	return "Object";
 }

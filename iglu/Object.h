@@ -16,8 +16,9 @@ public:
 	typedef Object* (Object::*unoFn)();
 	typedef Object* (Object::*binFn)(Object*);
 protected:
-	std::string type;
-	std::queue<std::string> currentReference;
+	std::string type; // object type
+	std::queue<std::string> currentReference; // references used to understand context of object use
+	bool marked; // mark for garbage collection
 
 	// cpp to iglu function linking
 	Chunk* generateUnoFnChunk(int);
@@ -25,25 +26,31 @@ protected:
 	void addFnProperty(std::string, Object::unoFn);
 	void addFnProperty(std::string, Object::binFn);
 
-	// cpp to iglu function linking
+	// add string -> object relationship (basically variables)
 	void addProperty(std::string, Object*);
 	
 	// cpp functions to link to iglu
 	Object* toStringFn();
 	static LinkedUnoFn toString;
 public:
-	std::unordered_map<std::string, Object*> properties;
-	//std::vector<Object::unoFn> unoFns;
-	//std::vector<Object::binFn> binFns;
+	std::unordered_map<std::string, Object*> properties; // map of variables -> objects
 
+	// object constructors
 	Object();
 	Object(bool);
 
+	// type checking functions
 	std::string getType();
 	int checkType(std::string);
 
+	// referencing (I'd like to remove this, but at the moment it's required for variables, and will be used for function calls)
 	void reference(std::string);
 	std::string dereference();
+
+	// garbage collection
+	void mark();
+	bool checkMark();
+	void unmark();
 
 	// debugging shit
 	std::string virtual debugToString();

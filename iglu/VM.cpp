@@ -17,6 +17,7 @@ VM::VM() {
 	chunks = vector<Chunk*>();
 	pc = vector<uint8_t*>();
 	stack = vector<Object*>();
+	objs = unordered_set<Object*>();
 	hadError = false;
 
 	Function::linkFns();
@@ -58,6 +59,7 @@ void VM::run() {
 				break;
 			}
 			}
+			objs.insert(topStack());
 			break;
 		}
 		case OpCode::NEGATE:{
@@ -129,7 +131,11 @@ void VM::run() {
 
 			// check if error object is returned
 			if (b->checkType("Error") >= 0) runtimeErrorObject(b);
-			else pushStack(b);
+			else {
+				pushStack(b);
+				objs.insert(b);
+			}
+			
 			break;
 		}
 		case OpCode::BINARY_FUNC_CALL:{
@@ -143,7 +149,10 @@ void VM::run() {
 
 			// check if error object is returned
 			if (c->checkType("Error") >= 0) runtimeErrorObject(c);
-			else pushStack(c);
+			else {
+				pushStack(c);
+				objs.insert(c);
+			}
 
 			break;
 		}
@@ -240,24 +249,27 @@ void VM::intoChunk(Chunk* chunk) {
 void VM::leaveChunk() {
 	pc.pop_back();
 	chunks.pop_back();
-	//cleanGarbage(); // TODO! Move to a better location later
+	cleanGarbage(); // TODO! Move to a better location later
 }
 
-//void VM::cleanGarbage() {
-//	for (auto i : variables) {
-//		for (auto j : i.second) {
-//			j.mark();
-//		}
-//	}
-//	for (auto i = objs.rbegin(); i != objs.rend(); i++) {
-//		if (!i.checkMark()) {
-//			objs.erase((i+1).base());
-//		}
-//		else {
-//			i.unMark();
-//		}
-//	}
-//}
+void VM::cleanGarbage() {
+	if(stack.size() > 0) topStack()->mark();
+	for (auto i : variables) {
+		for (auto j : i.second) {
+			j->mark();
+		}
+	}
+	for (auto i = objs.begin(); i != objs.end();) {
+		if (!(*i)->checkMark()) {
+			delete *i;
+			objs.erase(i++);
+		}
+		else {
+			(*i)->unmark();
+			i++;
+		}
+	}
+}
 
 bool VM::callFunction(Object* obj, string name) {
 	auto it = obj->properties.find(name);
