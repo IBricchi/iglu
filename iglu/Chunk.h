@@ -37,6 +37,7 @@ enum struct OpCode {
 	DECLARE_VAR,
 	DEFINE_VAR,
 	GET_VAR,
+	GET_MEMBER,
 
 	// return
 	RETURN

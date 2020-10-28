@@ -52,6 +52,7 @@ inline Token Compiler::frontRpn() {
 void Compiler::tokenToChunk(Token token) {
 	switch (token.type)
 	{
+	// arithmetic
 	case TokenType::NEGATE:
 		chunk.writeOp(token.line, OpCode::NEGATE);
 		break;
@@ -67,6 +68,7 @@ void Compiler::tokenToChunk(Token token) {
 	case TokenType::SLASH:
 		chunk.writeOp(token.line, OpCode::SLASH);
 		break;
+	//bool
 	case TokenType::BANG:
 		chunk.writeOp(token.line, OpCode::BANG);
 		break;
@@ -88,6 +90,7 @@ void Compiler::tokenToChunk(Token token) {
 	case TokenType::LESS_EQUAL:
 		chunk.writeOp(token.line, OpCode::LESS_EQUAL);
 		break;
+	// constants
 	case TokenType::NUMBER: {
 		string strVal = string(token.start, token.start + token.length);
 		Constant num = stof(strVal);
@@ -120,6 +123,7 @@ void Compiler::tokenToChunk(Token token) {
 		chunk.writeOpByte(token.line, OpCode::CONSTANT, chunk.constants.size() - 1);
 		break;
 	}
+	//variables
 	case TokenType::LET: {
 		Token var = frontRpn();
 		string varName = string(var.start, var.start + var.length);
@@ -138,6 +142,10 @@ void Compiler::tokenToChunk(Token token) {
 	case TokenType::EQUAL:
 		chunk.writeOp(token.line, OpCode::DEFINE_VAR);
 		break;
+	case TokenType::DOT:
+		chunk.writeOp(token.line, OpCode::GET_MEMBER);
+		break;
+	// return
 	case TokenType::RETURN:
 		chunk.writeOp(token.line, OpCode::RETURN);
 		break;

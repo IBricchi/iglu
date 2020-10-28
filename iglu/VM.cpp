@@ -38,6 +38,7 @@ void VM::run() {
 		OpCode instruction = (OpCode)readByte();
 		switch (instruction)
 		{
+		// Constants
 		case OpCode::CONSTANT:{
 			Constant constant = readConstant();
 			switch (constant.type)
@@ -62,6 +63,7 @@ void VM::run() {
 			objs.insert(topStack());
 			break;
 		}
+		// arithmetic
 		case OpCode::NEGATE:{
 			Object* a = topStack();
 			tryCallFunction(a, "__negate__", "(-)");
@@ -87,6 +89,7 @@ void VM::run() {
 			tryCallFunction(a, "__slash__", "/");
 			break;
 		}
+		// boolean
 		case OpCode::BANG: {
 			Object* a = topStack();
 			tryCallFunction(a, "__not__", "!");
@@ -122,6 +125,7 @@ void VM::run() {
 			tryCallFunction(a, "__less_equal__", "<=");
 			break;
 		}
+		// cpp functions
 		case OpCode::UNARY_FUNC_CALL:{
 			LinkedUnoFn* fn = (LinkedUnoFn*) popStack();
 			fn->dereference();
@@ -156,6 +160,7 @@ void VM::run() {
 
 			break;
 		}
+		// variables
 		case OpCode::DECLARE_VAR:{
 			string* name = readConstant().as.String;
 			if (variables.find(*name) != variables.end()) { // TODO! come back when different scopes exists
@@ -197,11 +202,26 @@ void VM::run() {
 			topStack()->reference(*name);
 			break;
 		}
+		case OpCode::GET_MEMBER: {
+			Object* b = popStack();
+			string member = b->dereference();
+			Object*a = popStack();
+			string name = a->dereference();
+			
+			if (a->properties.find(member) == a->properties.end()) {
+				runtimeError("Variable '" + name + "' has no");
+				break;
+			}
+			pushStack(a->properties[member]);
+			topStack()->reference(member);
+			break;
+		}
+		// return
 		case OpCode::RETURN:
 			leaveChunk();
 			break;
 		case OpCode::POP_STACK: {
-			////debuging
+			// debuging
 			Object* a = stack.back();
 			cout << stack.back()->getType() << ": " << a->debugToString() << endl;
 
