@@ -259,6 +259,23 @@ void VM::intoChunk(Chunk* chunk) {
 void VM::leaveChunk() {
 	pc.pop_back();
 	chunks.pop_back();
+	cleanGarbage(); // TODO! Move to a better location later
+}
+
+void VM::cleanGarbage() {
+	for (auto i : variables) {
+		for (auto j : i.second) {
+			j.mark();
+		}
+	}
+	for (auto i = objs.rbegin(); i != objs.rend(); i++) {
+		if (!i.checkMark()) {
+			objs.erase((i+1).base());
+		}
+		else {
+			i.unMark();
+		}
+	}
 }
 
 bool VM::callFunction(Object* obj, string name) {

@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include <set>
 
 #include "common.h"
 
@@ -18,6 +19,7 @@ private:
 	std::vector<Chunk*> chunks;
 	std::vector<Object*> stack;
 	std::vector<uint8_t*> pc;
+	std::set<Object*> objs;
 
 	std::unordered_map<std::string, std::vector<Object*>> variables;
 	
@@ -38,6 +40,8 @@ private:
 
 	void runtimeError(std::string);
 	void runtimeErrorObject(Object*);
+
+	void cleanGarbage();
 
 	//important
 	void run();

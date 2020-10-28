@@ -127,6 +127,7 @@ void Object::addReference(string var) {
 }
 
 void Object::removeReference(string var) {
+	auto a = references.find(var);
 	references.erase(references.find(var));
 	if (references.empty()) {
 		delete this;
