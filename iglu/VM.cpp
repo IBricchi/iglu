@@ -351,7 +351,9 @@ void VM::leaveChunk() {
 }
 
 void VM::cleanGarbage() {
-	if(stack.size() > 0 && stack.back().obj != nullptr) topStackObj()->mark();
+	for (auto i : stack) {
+		if(i.obj != nullptr) i.obj->mark();
+	}
 	for (auto i : variables) {
 		for (auto j : i.second) {
 			j->mark();
