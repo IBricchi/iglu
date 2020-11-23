@@ -10,6 +10,22 @@
 #include "Token.h"
 #include "VM.h"
 
+class PSM
+{
+private:
+	enum State {
+		// overal states values
+		BEGIN, STATEMENT, EXPRESSION,
+		
+		// error states
+		PANIC, NON_PANIC
+	};
+	State state{BEGIN};
+public:
+	bool next(Token);
+	bool is_panic();
+};
+
 class Parser
 {
 private:

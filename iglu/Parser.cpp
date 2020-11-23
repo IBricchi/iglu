@@ -89,15 +89,17 @@ void Parser::expression(TokenType delimiter, ExpressionType type) {
 			// report error if assignment not allowed
 			if (current.presidence == Presidence::ASSIGNMENT){
 				if(type != ExpressionType::VAR_DEC && !allowAssignment) nonPanicError("Cannot assign to the left hand side of '=' operator.");
-				else if(!allowAssignment) nonPanicError("Cannot define to the left hand side of '=' operator.");
+				if(type == ExpressionType::VAR_DEC && !allowAssignment) nonPanicError("Cannot declare variable on the left hand side of the '=' operator.");
 			}
 
 			// update if expectation values 
 			expectOper = false;
 			if (current.presidence < Presidence::CALL ||
-					type != ExpressionType::VAR_DEC && (current.type != TokenType::IDENTIFIER && current.type != TokenType::DOT) ||
-					type == ExpressionType::VAR_DEC && (current.type != TokenType::IDENTIFIER))
+				type != ExpressionType::VAR_DEC && (current.type != TokenType::IDENTIFIER && current.type != TokenType::DOT) ||
+				type == ExpressionType::VAR_DEC && (current.type != TokenType::IDENTIFIER && current.type != TokenType::DOT))
+			{
 				allowAssignment = false;
+			}
 
 			// if operator stack is empty push operator directly
 			if (opp.empty()) {
@@ -173,6 +175,16 @@ void Parser::expression(TokenType delimiter, ExpressionType type) {
 
 	// consume delimiter
 	current = scanner->scanToken();
+}
+
+// parser statemachine
+
+bool PSM::next(Token token) {
+	return true;
+}
+
+bool PSM::is_panic() {
+	return state==State::PANIC;
 }
 
 // Errors
