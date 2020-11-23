@@ -24,6 +24,7 @@ private:
 public:
 	bool next(Token);
 	bool is_panic();
+	void reset();
 };
 
 class Parser
@@ -32,6 +33,7 @@ private:
 	Scanner* scanner;
 	Token current;
 	std::queue<Token> rpn;
+	PSM psm;
 
 	const Token utility_popToken = Token{TokenType::POP_STACK, Presidence::NONE, true, nullptr, 0, 0};
 
@@ -53,11 +55,11 @@ private:
 		VAR_DEC
 	};
 
-	void expression(TokenType, ExpressionType = ExpressionType::NONE);
+	void expression(TokenType);
 
 	// helpers
 	void tryStatement();
-	void tryExpression(TokenType, ExpressionType = ExpressionType::NONE);
+	void tryExpression(TokenType);
 
 public:
 	bool hadError;
