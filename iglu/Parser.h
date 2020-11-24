@@ -23,7 +23,7 @@ private:
 
 	// states
 	enum struct State {
-		START, STOP,
+		START, END,
 
 		LEFT_PARAN, RIGHT_PARAN,
 		CONST, UNARY, IDENT,OPERATOR,
@@ -40,8 +40,10 @@ private:
 public:
 	PSM();
 	
-	bool next(TokenType);
+	void next(TokenType);
+	bool is_error();
 	bool is_panic();
+	bool at_end();
 
 	void setAsAssignment();
 

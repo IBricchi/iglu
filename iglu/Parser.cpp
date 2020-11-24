@@ -104,12 +104,12 @@ void Parser::statement() {
 void Parser::expression(TokenType delimiter) {
 	vector<Token> opp = vector<Token>();
 	psm.reset();
+	psm.next(current.type);
 
-	for (; current.type != delimiter; current = scanner->scanToken()) {
-		if (!psm.next(current.type)) {
-			if (psm.is_panic()) panicError("");
-			else continue;
-		}
+	while (!psm.at_end()) {
+		// check for state machine errors
+		if (psm.is_error()) {continue; current = scanner->scanToken(); psm.next(current.type);};
+		if (psm.is_panic()) panicError("");
 
 		// check if primary presidence (identifier/constant)
 		if (current.presidence == Presidence::PRIMARY) rpn.push(current);
@@ -161,6 +161,10 @@ void Parser::expression(TokenType delimiter) {
 			// remove left parenthesis
 			opp.pop_back();
 		}
+
+		// advance scanner and state machine
+		current = scanner->scanToken();
+		psm.next(current.type);
 	}
 	// clear remaining operators from stack
 	while (!opp.empty()) {
@@ -295,14 +299,14 @@ PSM::PSM() {
 	reset();
 }
 
-bool PSM::next(TokenType type) {
+void PSM::next(TokenType type) {
 	vector<pair<TokenType,State>> validTypes;
 	string errorMessage;
 	switch (state)
 	{
 	case State::START:
 		validTypes = {
-			{delimiter, State::STOP},
+			{delimiter, State::END},
 
 			{TokenType::LEFT_PARAN, State::LEFT_PARAN},
 
@@ -318,7 +322,7 @@ bool PSM::next(TokenType type) {
 			{TokenType::IDENTIFIER, State::IDENT}
 		};
 		break;
-	case State::STOP:
+	case State::END:
 		break;
 	case State::LEFT_PARAN:
 		validTypes = {
@@ -338,7 +342,7 @@ bool PSM::next(TokenType type) {
 		break;
 	case State::RIGHT_PARAN:
 		validTypes = {
-			{delimiter, State::STOP},
+			{delimiter, State::END},
 
 			{TokenType::RIGHT_PARAN, State::RIGHT_PARAN},
 
@@ -358,7 +362,7 @@ bool PSM::next(TokenType type) {
 		break;
 	case State::CONST:
 		validTypes = {
-			{delimiter, State::STOP},
+			{delimiter, State::END},
 			
 			{TokenType::RIGHT_PARAN, State::RIGHT_PARAN},
 
@@ -395,7 +399,7 @@ bool PSM::next(TokenType type) {
 		break;
 	case State::IDENT:
 		validTypes = {
-			{delimiter, State::STOP},
+			{delimiter, State::END},
 			
 			{TokenType::RIGHT_PARAN, State::RIGHT_PARAN},
 
@@ -437,7 +441,7 @@ bool PSM::next(TokenType type) {
 		break;
 	case State::END_FN_CALL:
 		validTypes = {
-			{delimiter, State::STOP},
+			{delimiter, State::END},
 
 			{TokenType::RIGHT_PARAN, State::RIGHT_PARAN},
 
@@ -491,12 +495,18 @@ bool PSM::next(TokenType type) {
 			state = State::ERROR;
 		}
 	}
+}
 
-	return state!=State::ERROR&&state!=State::PANIC_ERROR;
+bool PSM::is_error() {
+	return state == State::ERROR;
 }
 
 bool PSM::is_panic() {
 	return state == State::PANIC_ERROR;
+}
+
+bool PSM::at_end() {
+	return state == State::END;
 }
 
 void PSM::setAsAssignment() {
