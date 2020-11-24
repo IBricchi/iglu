@@ -289,211 +289,243 @@ PSM::PSM() {
 	reset();
 }
 
+const unordered_map<PSM::State, vector<pair<TokenType, PSM::State>>> PSM::validTypeMap = {
+	{State::START, {
+		{TokenType::LEFT_PARAN, State::LEFT_PARAN},
+
+		{TokenType::NEGATE, State::UNARY},
+		{TokenType::BANG, State::UNARY},
+
+		{TokenType::STRING, State::CONST},
+		{TokenType::TRUE, State::CONST},
+		{TokenType::FALSE, State::CONST},
+		{TokenType::NUMBER, State::CONST},
+		{TokenType::NILL, State::CONST},
+
+		{TokenType::IDENTIFIER, State::IDENT}
+	}},
+	{State::END, {}},
+	{State::LEFT_PARAN, {
+		{TokenType::LEFT_PARAN, State::LEFT_PARAN},
+
+		{TokenType::NEGATE, State::UNARY},
+		{TokenType::BANG, State::UNARY},
+
+		{TokenType::STRING, State::CONST},
+		{TokenType::TRUE, State::CONST},
+		{TokenType::FALSE, State::CONST},
+		{TokenType::NUMBER, State::CONST},
+		{TokenType::NILL, State::CONST},
+
+		{TokenType::IDENTIFIER, State::IDENT}
+	}},
+	{State::RIGHT_PARAN, {
+		{TokenType::RIGHT_PARAN, State::RIGHT_PARAN},
+
+		{TokenType::PLUS, State::OPERATOR},
+		{TokenType::MINUS, State::OPERATOR},
+		{TokenType::STAR, State::OPERATOR},
+		{TokenType::SLASH, State::OPERATOR},
+		{TokenType::EQUAL_EQUAL, State::OPERATOR},
+		{TokenType::BANG_EQUAL, State::OPERATOR},
+		{TokenType::LESS, State::OPERATOR},
+		{TokenType::LESS_EQUAL, State::OPERATOR},
+		{TokenType::GREATER, State::OPERATOR},
+		{TokenType::GREATER_EQUAL, State::OPERATOR},
+
+		{TokenType::LEFT_PARAN, State::FN_CALL},
+	}},
+	{State::CONST, {
+		{TokenType::RIGHT_PARAN, State::RIGHT_PARAN},
+
+		{TokenType::PLUS, State::OPERATOR},
+		{TokenType::MINUS, State::OPERATOR},
+		{TokenType::STAR, State::OPERATOR},
+		{TokenType::SLASH, State::OPERATOR},
+		{TokenType::EQUAL_EQUAL, State::OPERATOR},
+		{TokenType::BANG_EQUAL, State::OPERATOR},
+		{TokenType::LESS, State::OPERATOR},
+		{TokenType::LESS_EQUAL, State::OPERATOR},
+		{TokenType::GREATER, State::OPERATOR},
+		{TokenType::GREATER_EQUAL, State::OPERATOR},
+	}},
+	{State::UNARY, {
+		{TokenType::RIGHT_PARAN, State::RIGHT_PARAN},
+
+		{TokenType::PLUS, State::OPERATOR},
+		{TokenType::MINUS, State::OPERATOR},
+		{TokenType::STAR, State::OPERATOR},
+		{TokenType::SLASH, State::OPERATOR},
+		{TokenType::EQUAL_EQUAL, State::OPERATOR},
+		{TokenType::BANG_EQUAL, State::OPERATOR},
+		{TokenType::LESS, State::OPERATOR},
+		{TokenType::LESS_EQUAL, State::OPERATOR},
+		{TokenType::GREATER, State::OPERATOR},
+		{TokenType::GREATER_EQUAL, State::OPERATOR},
+
+		{TokenType::NEGATE, State::UNARY},
+		{TokenType::BANG, State::UNARY},
+	}},
+	{State::IDENT, {
+		{TokenType::RIGHT_PARAN, State::RIGHT_PARAN},
+
+		{TokenType::PLUS, State::OPERATOR},
+		{TokenType::MINUS, State::OPERATOR},
+		{TokenType::STAR, State::OPERATOR},
+		{TokenType::SLASH, State::OPERATOR},
+		{TokenType::EQUAL_EQUAL, State::OPERATOR},
+		{TokenType::BANG_EQUAL, State::OPERATOR},
+		{TokenType::LESS, State::OPERATOR},
+		{TokenType::LESS_EQUAL, State::OPERATOR},
+		{TokenType::GREATER, State::OPERATOR},
+		{TokenType::GREATER_EQUAL, State::OPERATOR},
+		{TokenType::DOT, State::DOT_OP},
+
+		{TokenType::EQUAL, State::ASSIGNMENT},
+
+		{TokenType::LEFT_PARAN, State::FN_CALL},
+	}},
+	{State::OPERATOR, {
+		{TokenType::STRING, State::CONST},
+		{TokenType::TRUE, State::CONST},
+		{TokenType::FALSE, State::CONST},
+		{TokenType::NUMBER, State::CONST},
+		{TokenType::NILL, State::CONST},
+
+		{TokenType::IDENTIFIER, State::IDENT}
+	}},
+	{State::DOT_OP, {
+		{TokenType::STRING, State::CONST},
+		{TokenType::TRUE, State::CONST},
+		{TokenType::FALSE, State::CONST},
+		{TokenType::NUMBER, State::CONST},
+		{TokenType::NILL, State::CONST},
+
+		{TokenType::EQUAL, State::ASSIGNMENT},
+
+		{TokenType::IDENTIFIER, State::IDENT}
+	}},
+	{State::ASSIGNMENT, {
+		{TokenType::LEFT_PARAN, State::LEFT_PARAN},
+
+		{TokenType::NEGATE, State::UNARY},
+		{TokenType::BANG, State::UNARY},
+
+		{TokenType::STRING, State::CONST},
+		{TokenType::TRUE, State::CONST},
+		{TokenType::FALSE, State::CONST},
+		{TokenType::NUMBER, State::CONST},
+		{TokenType::NILL, State::CONST},
+
+		{TokenType::IDENTIFIER, State::IDENT}
+	}},
+	{State::FN_CALL, {
+		{TokenType::STRING, State::PARAM},
+		{TokenType::TRUE, State::PARAM},
+		{TokenType::FALSE, State::PARAM},
+		{TokenType::NUMBER, State::PARAM},
+		{TokenType::NILL, State::PARAM},
+		{TokenType::IDENTIFIER, State::PARAM},
+
+		{TokenType::RIGHT_PARAN, State::END_FN_CALL},
+	}},
+	{State::END_FN_CALL, {
+		{TokenType::RIGHT_PARAN, State::RIGHT_PARAN},
+
+		{TokenType::PLUS, State::OPERATOR},
+		{TokenType::MINUS, State::OPERATOR},
+		{TokenType::STAR, State::OPERATOR},
+		{TokenType::SLASH, State::OPERATOR},
+		{TokenType::EQUAL_EQUAL, State::OPERATOR},
+		{TokenType::BANG_EQUAL, State::OPERATOR},
+		{TokenType::LESS, State::OPERATOR},
+		{TokenType::LESS_EQUAL, State::OPERATOR},
+		{TokenType::GREATER, State::OPERATOR},
+		{TokenType::GREATER_EQUAL, State::OPERATOR},
+		{TokenType::DOT, State::DOT_OP},
+	}},
+	{State::PARAM, {
+		{TokenType::COMMA, State::PARAM_COMMA},
+
+		{TokenType::RIGHT_PARAN, State::END_FN_CALL},
+	}},
+	{State::PARAM_COMMA, {
+		{TokenType::STRING, State::PARAM},
+		{TokenType::TRUE, State::PARAM},
+		{TokenType::FALSE, State::PARAM},
+		{TokenType::NUMBER, State::PARAM},
+		{TokenType::NILL, State::PARAM},
+		{TokenType::IDENTIFIER, State::PARAM},
+	}},
+	{State::ERROR, {}},
+	{State::PANIC_ERROR, {}}
+
+};
+
 void PSM::next(TokenType type) {
-	vector<pair<TokenType,State>> validTypes;
+	vector<pair<TokenType, State>>validTypes = validTypeMap.at(state);
+	bool allowDelimiter = false;
+
 	switch (state)
 	{
 	case State::START:
-		validTypes = {
-			{delimiter, State::END},
-
-			{TokenType::LEFT_PARAN, State::LEFT_PARAN},
-
-			{TokenType::NEGATE, State::UNARY},
-			{TokenType::BANG, State::UNARY},
-
-			{TokenType::STRING, State::CONST},
-			{TokenType::TRUE, State::CONST},
-			{TokenType::FALSE, State::CONST},
-			{TokenType::NUMBER, State::CONST},
-			{TokenType::NILL, State::CONST},
-
-			{TokenType::IDENTIFIER, State::IDENT}
-		};
+		allowDelimiter = true;
 		errorMessage = "Expression cannot beggin with '" + Parser::getName(type) + "'.";
 		break;
 	case State::END:
 		break;
 	case State::LEFT_PARAN:
 		unclosedParen++;
-		validTypes = {
-			{TokenType::LEFT_PARAN, State::LEFT_PARAN},
-
-			{TokenType::NEGATE, State::UNARY},
-			{TokenType::BANG, State::UNARY},
-
-			{TokenType::STRING, State::CONST},
-			{TokenType::TRUE, State::CONST},
-			{TokenType::FALSE, State::CONST},
-			{TokenType::NUMBER, State::CONST},
-			{TokenType::NILL, State::CONST},
-
-			{TokenType::IDENTIFIER, State::IDENT}
-		};
+		allowAssignment = false;
 		errorMessage = "Unexpected token '" + Parser::getName(type) + "'.";
 		break;
 	case State::RIGHT_PARAN:
+		allowDelimiter = true;
 		unclosedParen--;
-		validTypes = {
-			{delimiter, State::END},
-
-			{TokenType::RIGHT_PARAN, State::RIGHT_PARAN},
-
-			{TokenType::PLUS, State::OPERATOR},
-			{TokenType::MINUS, State::OPERATOR},
-			{TokenType::STAR, State::OPERATOR},
-			{TokenType::SLASH, State::OPERATOR},
-			{TokenType::EQUAL_EQUAL, State::OPERATOR},
-			{TokenType::BANG_EQUAL, State::OPERATOR},
-			{TokenType::LESS, State::OPERATOR},
-			{TokenType::LESS_EQUAL, State::OPERATOR},
-			{TokenType::GREATER, State::OPERATOR},
-			{TokenType::GREATER_EQUAL, State::OPERATOR},
-
-			{TokenType::LEFT_PARAN, State::FN_CALL},
-		};
+		allowAssignment = false;
 		errorMessage = "Unexpected token '" + Parser::getName(type) + "'.";
 		break;
 	case State::CONST:
-		validTypes = {
-			{delimiter, State::END},
-			
-			{TokenType::RIGHT_PARAN, State::RIGHT_PARAN},
-
-			{TokenType::PLUS, State::OPERATOR},
-			{TokenType::MINUS, State::OPERATOR},
-			{TokenType::STAR, State::OPERATOR},
-			{TokenType::SLASH, State::OPERATOR},
-			{TokenType::EQUAL_EQUAL, State::OPERATOR},
-			{TokenType::BANG_EQUAL, State::OPERATOR},
-			{TokenType::LESS, State::OPERATOR},
-			{TokenType::LESS_EQUAL, State::OPERATOR},
-			{TokenType::GREATER, State::OPERATOR},
-			{TokenType::GREATER_EQUAL, State::OPERATOR},
-		};
+		allowDelimiter = true;
+		allowAssignment = false;
 		errorMessage = "Unexpected token '" + Parser::getName(type) + "'.";
 		break;
 	case State::UNARY:
-		validTypes = {
-			{TokenType::RIGHT_PARAN, State::RIGHT_PARAN},
-
-			{TokenType::PLUS, State::OPERATOR},
-			{TokenType::MINUS, State::OPERATOR},
-			{TokenType::STAR, State::OPERATOR},
-			{TokenType::SLASH, State::OPERATOR},
-			{TokenType::EQUAL_EQUAL, State::OPERATOR},
-			{TokenType::BANG_EQUAL, State::OPERATOR},
-			{TokenType::LESS, State::OPERATOR},
-			{TokenType::LESS_EQUAL, State::OPERATOR},
-			{TokenType::GREATER, State::OPERATOR},
-			{TokenType::GREATER_EQUAL, State::OPERATOR},
-
-			{TokenType::NEGATE, State::UNARY},
-			{TokenType::BANG, State::UNARY},
-		};
+		allowAssignment = false;
 		errorMessage = "Unexpected token '" + Parser::getName(type) + "'.";
 		break;
 	case State::IDENT:
-		validTypes = {
-			{delimiter, State::END},
-			
-			{TokenType::RIGHT_PARAN, State::RIGHT_PARAN},
-
-			{TokenType::PLUS, State::OPERATOR},
-			{TokenType::MINUS, State::OPERATOR},
-			{TokenType::STAR, State::OPERATOR},
-			{TokenType::SLASH, State::OPERATOR},
-			{TokenType::EQUAL_EQUAL, State::OPERATOR},
-			{TokenType::BANG_EQUAL, State::OPERATOR},
-			{TokenType::LESS, State::OPERATOR},
-			{TokenType::LESS_EQUAL, State::OPERATOR},
-			{TokenType::GREATER, State::OPERATOR},
-			{TokenType::GREATER_EQUAL, State::OPERATOR},
-			{TokenType::DOT, State::OPERATOR}, //!TODO create specific state for the DOT
-
-			{TokenType::LEFT_PARAN, State::FN_CALL},
-		};
+		allowDelimiter = true;
 		errorMessage = "Unexpected token '" + Parser::getName(type) + "'.";
 		break;
 	case State::OPERATOR:
-		validTypes = {
-			{TokenType::STRING, State::CONST},
-			{TokenType::TRUE, State::CONST},
-			{TokenType::FALSE, State::CONST},
-			{TokenType::NUMBER, State::CONST},
-			{TokenType::NILL, State::CONST},
-
-			{TokenType::IDENTIFIER, State::IDENT}
-		};
+		allowAssignment = false;
 		errorMessage = "Unexpected token '" + Parser::getName(type) + "'.";
 		break;
+	case State::DOT_OP:
+		errorMessage = "Unexpected token '" + Parser::getName(type) + "'.";
+		break;
+	case State::ASSIGNMENT: {
+		allowAssignment = false;
+		errorMessage = "Unexpected token '" + Parser::getName(type) + "'.";
+		break;
+	}
 	case State::FN_CALL:
-		validTypes = {
-			{TokenType::STRING, State::PARAM},
-			{TokenType::TRUE, State::PARAM},
-			{TokenType::FALSE, State::PARAM},
-			{TokenType::NUMBER, State::PARAM},
-			{TokenType::NILL, State::PARAM},
-			{TokenType::IDENTIFIER, State::PARAM},
-		};
 		errorMessage = "Unexpected token '" + Parser::getName(type) + "'.";
 		break;
 	case State::END_FN_CALL:
-		validTypes = {
-			{delimiter, State::END},
-
-			{TokenType::RIGHT_PARAN, State::RIGHT_PARAN},
-
-			{TokenType::PLUS, State::OPERATOR},
-			{TokenType::MINUS, State::OPERATOR},
-			{TokenType::STAR, State::OPERATOR},
-			{TokenType::SLASH, State::OPERATOR},
-			{TokenType::EQUAL_EQUAL, State::OPERATOR},
-			{TokenType::BANG_EQUAL, State::OPERATOR},
-			{TokenType::LESS, State::OPERATOR},
-			{TokenType::LESS_EQUAL, State::OPERATOR},
-			{TokenType::GREATER, State::OPERATOR},
-			{TokenType::GREATER_EQUAL, State::OPERATOR},
-			{TokenType::DOT, State::OPERATOR}, //!TODO create specific state for the DOT
-		};
+		allowDelimiter = true;
 		errorMessage = "Unexpected token '" + Parser::getName(type) + "'.";
 		break;
 	case State::PARAM:
-		validTypes = {
-			{TokenType::COMMA, State::PARAM_COMMA},
-			
-			{TokenType::RIGHT_PARAN, State::END_FN_CALL},
-		};
 		errorMessage = "Unexpected token '" + Parser::getName(type) + "'.";
 		break;
-	case State::PARAM_COMMA: // !TODO think about merging this with the FN_CALL state "could be more efficient"
-		validTypes = {
-			{TokenType::STRING, State::PARAM},
-			{TokenType::TRUE, State::PARAM},
-			{TokenType::FALSE, State::PARAM},
-			{TokenType::NUMBER, State::PARAM},
-			{TokenType::NILL, State::PARAM},
-			{TokenType::IDENTIFIER, State::PARAM},
-		};
+	case State::PARAM_COMMA:
 		errorMessage = "Unexpected token '" + Parser::getName(type) + "'.";
 		break;
 	case State::ERROR:
-		validTypes = {
-			{delimiter, State::END},
-
-			{TokenType::LEFT_PARAN, State::LEFT_PARAN},
-
-			{TokenType::NEGATE, State::UNARY},
-			{TokenType::BANG, State::UNARY},
-
-			{TokenType::STRING, State::CONST},
-			{TokenType::TRUE, State::CONST},
-			{TokenType::FALSE, State::CONST},
-			{TokenType::NUMBER, State::CONST},
-			{TokenType::NILL, State::CONST},
-
-			{TokenType::IDENTIFIER, State::IDENT}
-		};
+		allowAssignment = false;
+		validTypes = validTypeMap.at(lne);
 		errorMessage = "Unexpected token '" + Parser::getName(type) + "'.";
 		break;
 	case State::PANIC_ERROR:
@@ -503,18 +535,31 @@ void PSM::next(TokenType type) {
 		break;
 	}
 
+	if (allowDelimiter && type == delimiter) {
+		lne = state;
+		state = State::END;
+		return;
+	}
+
 	for (auto it = validTypes.begin(); it < validTypes.end();){
 		if(it->first == type){
 			// check specific state jump conditions are met
-			if (type == delimiter && unclosedParen != 0) {
+			if (it->second == State::END && unclosedParen != 0) {
 				errorMessage = "Unbalanced parentheses, too many '('.";
 				state = State::PANIC_ERROR;
 			}
-			else if (type == TokenType::RIGHT_PARAN && unclosedParen == 0) {
+			else if (it->second == State::RIGHT_PARAN && unclosedParen == 0) {
 				errorMessage = "Unbalanced parentheses, too many ')'.";
 				state = State::PANIC_ERROR;
 			}
-			else state = it->second;
+			else if (it->second == State::ASSIGNMENT && !allowAssignment) {
+				errorMessage = "Cannot assign to left side of '='.";
+				state = State::ERROR;
+			}
+			else {
+				lne = state;
+				state = it->second;
+			}
 			break;
 		}
 		it++;
@@ -547,6 +592,8 @@ void PSM::change_delimiter(TokenType type) {
 void PSM::reset() {
 	delimiter = TokenType::SEMICOLON;
 	unclosedParen = 0;
+	hadAssignment = false;
+	allowAssignment = true;
 	exprType = ExprType::DEF;
 
 	state = State::START;

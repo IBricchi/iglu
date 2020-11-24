@@ -16,6 +16,8 @@ private:
 	//information for expression
 	TokenType delimiter;
 	int unclosedParen;
+	bool hadAssignment;
+	bool allowAssignment;
 	enum struct ExprType{
 		DEF,
 		ASSIGN
@@ -27,16 +29,19 @@ private:
 		START, END,
 
 		LEFT_PARAN, RIGHT_PARAN,
-		CONST, UNARY, IDENT,OPERATOR,
+		CONST, UNARY, IDENT, OPERATOR,
+
+		DOT_OP, ASSIGNMENT,
 
 		FN_CALL, END_FN_CALL,
 		PARAM, PARAM_COMMA,
 
 		ERROR, PANIC_ERROR,
 	};
+	State lne;
 	State state;
 
-	//manage errors
+	static const std::unordered_map<State, std::vector<std::pair<TokenType, State>>> validTypeMap;
 public:
 	std::string errorMessage;
 
