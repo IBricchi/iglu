@@ -3,6 +3,7 @@
 #include <queue>
 #include <string>
 #include <exception>
+#include <unordered_map>
 
 #include "common.h"
 
@@ -41,7 +42,7 @@ private:
 	State lne;
 	State state;
 
-	static const std::unordered_map<State, std::vector<std::pair<TokenType, State>>> validTypeMap;
+	static const std::unordered_map<State, std::unordered_map<TokenType, State>> validTypeMap;
 public:
 	std::string errorMessage;
 

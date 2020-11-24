@@ -289,7 +289,7 @@ PSM::PSM() {
 	reset();
 }
 
-const unordered_map<PSM::State, vector<pair<TokenType, PSM::State>>> PSM::validTypeMap = {
+const unordered_map<PSM::State, unordered_map<TokenType, PSM::State>> PSM::validTypeMap = {
 	{State::START, {
 		{TokenType::LEFT_PARAN, State::LEFT_PARAN},
 
@@ -459,7 +459,7 @@ const unordered_map<PSM::State, vector<pair<TokenType, PSM::State>>> PSM::validT
 };
 
 void PSM::next(TokenType type) {
-	vector<pair<TokenType, State>>validTypes = validTypeMap.at(state);
+	unordered_map<TokenType, State>validTypes = validTypeMap.at(state);
 	bool allowDelimiter = false;
 
 	switch (state)
@@ -539,8 +539,9 @@ void PSM::next(TokenType type) {
 		errorMessage = "Expected '" + Parser::getName(delimiter) + "' but reached the end of the file.";
 		state = State::PANIC_ERROR;
 	}
-	else for (auto it = validTypes.begin(); it < validTypes.end();){
-		if(it->first == type){
+	else {
+		auto it = validTypes.find(type);
+		if (it != validTypes.end()) {
 			// check specific state jump conditions are met
 			if (it->second == State::END && unclosedParen != 0) {
 				errorMessage = "Unbalanced parentheses, too many '('.";
@@ -558,10 +559,9 @@ void PSM::next(TokenType type) {
 				lne = state;
 				state = it->second;
 			}
-			break;
 		}
-		it++;
-		if (it == validTypes.end()) {
+		else {
+			errorMessage = "Unexpected token '" + Parser::getName(type) + "'.";
 			state = State::ERROR;
 		}
 	}
