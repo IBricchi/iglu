@@ -333,6 +333,9 @@ const unordered_map<PSM::State, vector<pair<TokenType, PSM::State>>> PSM::validT
 		{TokenType::GREATER, State::OPERATOR},
 		{TokenType::GREATER_EQUAL, State::OPERATOR},
 
+		{TokenType::DOT, State::DOT_OP},
+
+
 		{TokenType::LEFT_PARAN, State::FN_CALL},
 	}},
 	{State::CONST, {
@@ -348,20 +351,11 @@ const unordered_map<PSM::State, vector<pair<TokenType, PSM::State>>> PSM::validT
 		{TokenType::LESS_EQUAL, State::OPERATOR},
 		{TokenType::GREATER, State::OPERATOR},
 		{TokenType::GREATER_EQUAL, State::OPERATOR},
+
+		{TokenType::DOT, State::DOT_OP},
 	}},
 	{State::UNARY, {
 		{TokenType::RIGHT_PARAN, State::RIGHT_PARAN},
-
-		{TokenType::PLUS, State::OPERATOR},
-		{TokenType::MINUS, State::OPERATOR},
-		{TokenType::STAR, State::OPERATOR},
-		{TokenType::SLASH, State::OPERATOR},
-		{TokenType::EQUAL_EQUAL, State::OPERATOR},
-		{TokenType::BANG_EQUAL, State::OPERATOR},
-		{TokenType::LESS, State::OPERATOR},
-		{TokenType::LESS_EQUAL, State::OPERATOR},
-		{TokenType::GREATER, State::OPERATOR},
-		{TokenType::GREATER_EQUAL, State::OPERATOR},
 
 		{TokenType::NEGATE, State::UNARY},
 		{TokenType::BANG, State::UNARY},
@@ -379,6 +373,7 @@ const unordered_map<PSM::State, vector<pair<TokenType, PSM::State>>> PSM::validT
 		{TokenType::LESS_EQUAL, State::OPERATOR},
 		{TokenType::GREATER, State::OPERATOR},
 		{TokenType::GREATER_EQUAL, State::OPERATOR},
+
 		{TokenType::DOT, State::DOT_OP},
 
 		{TokenType::EQUAL, State::ASSIGNMENT},
@@ -442,6 +437,7 @@ const unordered_map<PSM::State, vector<pair<TokenType, PSM::State>>> PSM::validT
 		{TokenType::LESS_EQUAL, State::OPERATOR},
 		{TokenType::GREATER, State::OPERATOR},
 		{TokenType::GREATER_EQUAL, State::OPERATOR},
+
 		{TokenType::DOT, State::DOT_OP},
 	}},
 	{State::PARAM, {
@@ -535,13 +531,15 @@ void PSM::next(TokenType type) {
 		break;
 	}
 
-	if (allowDelimiter && type == delimiter) {
+	if (type == delimiter) {
 		lne = state;
 		state = State::END;
-		return;
 	}
-
-	for (auto it = validTypes.begin(); it < validTypes.end();){
+	else if (type == TokenType::FILE_END) {
+		errorMessage = "Expected '" + Parser::getName(delimiter) + "' but reached the end of the file.";
+		state = State::PANIC_ERROR;
+	}
+	else for (auto it = validTypes.begin(); it < validTypes.end();){
 		if(it->first == type){
 			// check specific state jump conditions are met
 			if (it->second == State::END && unclosedParen != 0) {
