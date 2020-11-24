@@ -531,7 +531,7 @@ void PSM::next(TokenType type) {
 		break;
 	}
 
-	if (type == delimiter) {
+	if (type == delimiter && !(delimiter == TokenType::RIGHT_PARAN && unclosedParen != 0)) {
 		lne = state;
 		state = State::END;
 	}
