@@ -36,8 +36,9 @@ private:
 	State state;
 
 	//manage errors
-	std::string errorMessage;
 public:
+	std::string errorMessage;
+
 	PSM();
 	
 	void next(TokenType);

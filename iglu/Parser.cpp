@@ -104,12 +104,14 @@ void Parser::statement() {
 void Parser::expression(TokenType delimiter) {
 	vector<Token> opp = vector<Token>();
 	psm.reset();
-	psm.next(current.type);
 
-	while (!psm.at_end()) {
+	for(psm.next(current.type); !psm.at_end();(current = scanner->scanToken()), psm.next(current.type)) { // I do believe this is the most disgusting for loop I've ever seen but also so beautiful
 		// check for state machine errors
-		if (psm.is_error()) {continue; current = scanner->scanToken(); psm.next(current.type);};
-		if (psm.is_panic()) panicError("");
+		if (psm.is_error()) {
+			nonPanicError(psm.errorMessage);
+			continue;
+		}
+		if (psm.is_panic()) panicError(psm.errorMessage);
 
 		// check if primary presidence (identifier/constant)
 		if (current.presidence == Presidence::PRIMARY) rpn.push(current);
@@ -161,10 +163,6 @@ void Parser::expression(TokenType delimiter) {
 			// remove left parenthesis
 			opp.pop_back();
 		}
-
-		// advance scanner and state machine
-		current = scanner->scanToken();
-		psm.next(current.type);
 	}
 	// clear remaining operators from stack
 	while (!opp.empty()) {
@@ -301,7 +299,6 @@ PSM::PSM() {
 
 void PSM::next(TokenType type) {
 	vector<pair<TokenType,State>> validTypes;
-	string errorMessage;
 	switch (state)
 	{
 	case State::START:
@@ -321,6 +318,7 @@ void PSM::next(TokenType type) {
 
 			{TokenType::IDENTIFIER, State::IDENT}
 		};
+		errorMessage = "Expression cannot beggin with " + Parser::getName(type) + ".";
 		break;
 	case State::END:
 		break;
@@ -339,6 +337,7 @@ void PSM::next(TokenType type) {
 
 			{TokenType::IDENTIFIER, State::IDENT}
 		};
+		errorMessage = "Unexpected token " + Parser::getName(type) + ".";
 		break;
 	case State::RIGHT_PARAN:
 		validTypes = {
@@ -359,6 +358,7 @@ void PSM::next(TokenType type) {
 
 			{TokenType::LEFT_PARAN, State::FN_CALL},
 		};
+		errorMessage = "Unexpected token " + Parser::getName(type) + ".";
 		break;
 	case State::CONST:
 		validTypes = {
@@ -377,6 +377,7 @@ void PSM::next(TokenType type) {
 			{TokenType::GREATER, State::OPERATOR},
 			{TokenType::GREATER_EQUAL, State::OPERATOR},
 		};
+		errorMessage = "Unexpected token " + Parser::getName(type) + ".";
 		break;
 	case State::UNARY:
 		validTypes = {
@@ -396,6 +397,7 @@ void PSM::next(TokenType type) {
 			{TokenType::NEGATE, State::UNARY},
 			{TokenType::BANG, State::UNARY},
 		};
+		errorMessage = "Unexpected token " + Parser::getName(type) + ".";
 		break;
 	case State::IDENT:
 		validTypes = {
@@ -417,6 +419,7 @@ void PSM::next(TokenType type) {
 
 			{TokenType::LEFT_PARAN, State::FN_CALL},
 		};
+		errorMessage = "Unexpected token " + Parser::getName(type) + ".";
 		break;
 	case State::OPERATOR:
 		validTypes = {
@@ -428,6 +431,7 @@ void PSM::next(TokenType type) {
 
 			{TokenType::IDENTIFIER, State::IDENT}
 		};
+		errorMessage = "Unexpected token " + Parser::getName(type) + ".";
 		break;
 	case State::FN_CALL:
 		validTypes = {
@@ -438,6 +442,7 @@ void PSM::next(TokenType type) {
 			{TokenType::NILL, State::PARAM},
 			{TokenType::IDENTIFIER, State::PARAM},
 		};
+		errorMessage = "Unexpected token " + Parser::getName(type) + ".";
 		break;
 	case State::END_FN_CALL:
 		validTypes = {
@@ -457,6 +462,7 @@ void PSM::next(TokenType type) {
 			{TokenType::GREATER_EQUAL, State::OPERATOR},
 			{TokenType::DOT, State::OPERATOR}, //!TODO create specific state for the DOT
 		};
+		errorMessage = "Unexpected token " + Parser::getName(type) + ".";
 		break;
 	case State::PARAM:
 		validTypes = {
@@ -464,6 +470,7 @@ void PSM::next(TokenType type) {
 			
 			{TokenType::RIGHT_PARAN, State::END_FN_CALL},
 		};
+		errorMessage = "Unexpected token " + Parser::getName(type) + ".";
 		break;
 	case State::PARAM_COMMA: // !TODO think about merging this with the FN_CALL state "could be more efficient"
 		validTypes = {
@@ -474,10 +481,26 @@ void PSM::next(TokenType type) {
 			{TokenType::NILL, State::PARAM},
 			{TokenType::IDENTIFIER, State::PARAM},
 		};
+		errorMessage = "Unexpected token " + Parser::getName(type) + ".";
 		break;
 	case State::ERROR:
-		// !TODO remove
-		cout << "Entered Error State Parser";
+		validTypes = {
+			{delimiter, State::END},
+
+			{TokenType::LEFT_PARAN, State::LEFT_PARAN},
+
+			{TokenType::NEGATE, State::UNARY},
+			{TokenType::BANG, State::UNARY},
+
+			{TokenType::STRING, State::CONST},
+			{TokenType::TRUE, State::CONST},
+			{TokenType::FALSE, State::CONST},
+			{TokenType::NUMBER, State::CONST},
+			{TokenType::NILL, State::CONST},
+
+			{TokenType::IDENTIFIER, State::IDENT}
+		};
+		errorMessage = "Unexpected token " + Parser::getName(type) + ".";
 		break;
 	case State::PANIC_ERROR:
 		break;
