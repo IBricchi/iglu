@@ -155,10 +155,6 @@ void Parser::expression(TokenType delimiter) {
 				rpn.push(opp.back());
 				opp.pop_back();
 			}
-			// error management if unpaired right parenthesis is found
-			if (opp.empty()) {
-				panicError("Unpaired ')' found.");
-			}
 
 			// remove left parenthesis
 			opp.pop_back();
@@ -166,10 +162,6 @@ void Parser::expression(TokenType delimiter) {
 	}
 	// clear remaining operators from stack
 	while (!opp.empty()) {
-		// deal with unparied left parenthesis
-		if (opp.back().type == TokenType::LEFT_PARAN) {
-			nonPanicError("Unpaired '(' found.");
-		}
 		rpn.push(opp.back());
 		opp.pop_back();
 	}
@@ -318,11 +310,12 @@ void PSM::next(TokenType type) {
 
 			{TokenType::IDENTIFIER, State::IDENT}
 		};
-		errorMessage = "Expression cannot beggin with " + Parser::getName(type) + ".";
+		errorMessage = "Expression cannot beggin with '" + Parser::getName(type) + "'.";
 		break;
 	case State::END:
 		break;
 	case State::LEFT_PARAN:
+		unclosedParen++;
 		validTypes = {
 			{TokenType::LEFT_PARAN, State::LEFT_PARAN},
 
@@ -337,9 +330,10 @@ void PSM::next(TokenType type) {
 
 			{TokenType::IDENTIFIER, State::IDENT}
 		};
-		errorMessage = "Unexpected token " + Parser::getName(type) + ".";
+		errorMessage = "Unexpected token '" + Parser::getName(type) + "'.";
 		break;
 	case State::RIGHT_PARAN:
+		unclosedParen--;
 		validTypes = {
 			{delimiter, State::END},
 
@@ -358,7 +352,7 @@ void PSM::next(TokenType type) {
 
 			{TokenType::LEFT_PARAN, State::FN_CALL},
 		};
-		errorMessage = "Unexpected token " + Parser::getName(type) + ".";
+		errorMessage = "Unexpected token '" + Parser::getName(type) + "'.";
 		break;
 	case State::CONST:
 		validTypes = {
@@ -377,7 +371,7 @@ void PSM::next(TokenType type) {
 			{TokenType::GREATER, State::OPERATOR},
 			{TokenType::GREATER_EQUAL, State::OPERATOR},
 		};
-		errorMessage = "Unexpected token " + Parser::getName(type) + ".";
+		errorMessage = "Unexpected token '" + Parser::getName(type) + "'.";
 		break;
 	case State::UNARY:
 		validTypes = {
@@ -397,7 +391,7 @@ void PSM::next(TokenType type) {
 			{TokenType::NEGATE, State::UNARY},
 			{TokenType::BANG, State::UNARY},
 		};
-		errorMessage = "Unexpected token " + Parser::getName(type) + ".";
+		errorMessage = "Unexpected token '" + Parser::getName(type) + "'.";
 		break;
 	case State::IDENT:
 		validTypes = {
@@ -419,7 +413,7 @@ void PSM::next(TokenType type) {
 
 			{TokenType::LEFT_PARAN, State::FN_CALL},
 		};
-		errorMessage = "Unexpected token " + Parser::getName(type) + ".";
+		errorMessage = "Unexpected token '" + Parser::getName(type) + "'.";
 		break;
 	case State::OPERATOR:
 		validTypes = {
@@ -431,7 +425,7 @@ void PSM::next(TokenType type) {
 
 			{TokenType::IDENTIFIER, State::IDENT}
 		};
-		errorMessage = "Unexpected token " + Parser::getName(type) + ".";
+		errorMessage = "Unexpected token '" + Parser::getName(type) + "'.";
 		break;
 	case State::FN_CALL:
 		validTypes = {
@@ -442,7 +436,7 @@ void PSM::next(TokenType type) {
 			{TokenType::NILL, State::PARAM},
 			{TokenType::IDENTIFIER, State::PARAM},
 		};
-		errorMessage = "Unexpected token " + Parser::getName(type) + ".";
+		errorMessage = "Unexpected token '" + Parser::getName(type) + "'.";
 		break;
 	case State::END_FN_CALL:
 		validTypes = {
@@ -462,7 +456,7 @@ void PSM::next(TokenType type) {
 			{TokenType::GREATER_EQUAL, State::OPERATOR},
 			{TokenType::DOT, State::OPERATOR}, //!TODO create specific state for the DOT
 		};
-		errorMessage = "Unexpected token " + Parser::getName(type) + ".";
+		errorMessage = "Unexpected token '" + Parser::getName(type) + "'.";
 		break;
 	case State::PARAM:
 		validTypes = {
@@ -470,7 +464,7 @@ void PSM::next(TokenType type) {
 			
 			{TokenType::RIGHT_PARAN, State::END_FN_CALL},
 		};
-		errorMessage = "Unexpected token " + Parser::getName(type) + ".";
+		errorMessage = "Unexpected token '" + Parser::getName(type) + "'.";
 		break;
 	case State::PARAM_COMMA: // !TODO think about merging this with the FN_CALL state "could be more efficient"
 		validTypes = {
@@ -481,7 +475,7 @@ void PSM::next(TokenType type) {
 			{TokenType::NILL, State::PARAM},
 			{TokenType::IDENTIFIER, State::PARAM},
 		};
-		errorMessage = "Unexpected token " + Parser::getName(type) + ".";
+		errorMessage = "Unexpected token '" + Parser::getName(type) + "'.";
 		break;
 	case State::ERROR:
 		validTypes = {
@@ -500,17 +494,27 @@ void PSM::next(TokenType type) {
 
 			{TokenType::IDENTIFIER, State::IDENT}
 		};
-		errorMessage = "Unexpected token " + Parser::getName(type) + ".";
+		errorMessage = "Unexpected token '" + Parser::getName(type) + "'.";
 		break;
 	case State::PANIC_ERROR:
 		break;
 	default:
+		// no need for default !TODO
 		break;
 	}
 
 	for (auto it = validTypes.begin(); it < validTypes.end();){
 		if(it->first == type){
-			state = it->second;
+			// check specific state jump conditions are met
+			if (type == delimiter && unclosedParen != 0) {
+				errorMessage = "Unbalanced parentheses, too many '('.";
+				state = State::PANIC_ERROR;
+			}
+			else if (type == TokenType::RIGHT_PARAN && unclosedParen == 0) {
+				errorMessage = "Unbalanced parentheses, too many ')'.";
+				state = State::PANIC_ERROR;
+			}
+			else state = it->second;
 			break;
 		}
 		it++;
@@ -542,6 +546,7 @@ void PSM::change_delimiter(TokenType type) {
 
 void PSM::reset() {
 	delimiter = TokenType::SEMICOLON;
+	unclosedParen = 0;
 	exprType = ExprType::DEF;
 
 	state = State::START;

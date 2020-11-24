@@ -15,6 +15,7 @@ class PSM
 private:
 	//information for expression
 	TokenType delimiter;
+	int unclosedParen;
 	enum struct ExprType{
 		DEF,
 		ASSIGN
