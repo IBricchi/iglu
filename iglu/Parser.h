@@ -13,17 +13,39 @@
 class PSM
 {
 private:
-	enum State {
-		// overal states values
-		BEGIN, STATEMENT, EXPRESSION,
-		
-		// error states
-		PANIC, NON_PANIC
+	//information for expression
+	TokenType delimiter;
+	enum struct ExprType{
+		DEF,
+		ASSIGN
 	};
-	State state{BEGIN};
+	ExprType exprType;
+
+	// states
+	enum struct State {
+		START, STOP,
+
+		LEFT_PARAN, RIGHT_PARAN,
+		CONST, UNARY, IDENT,OPERATOR,
+
+		FN_CALL, END_FN_CALL,
+		PARAM, PARAM_COMMA,
+
+		ERROR, PANIC_ERROR,
+	};
+	State state;
+
+	//manage errors
+	std::string errorMessage;
 public:
-	bool next(Token);
+	PSM();
+	
+	bool next(TokenType);
 	bool is_panic();
+
+	void setAsAssignment();
+
+	void change_delimiter(TokenType);
 	void reset();
 };
 

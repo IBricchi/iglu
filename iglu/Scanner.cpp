@@ -42,7 +42,7 @@ Token Scanner::scanToken() {
 	case '"': return stringToken();
 
 	case '-':
-		if (prev.type == TokenType::IDENTIFIER || prev.type == TokenType::NUMBER || prev.type == TokenType::RIGHT_PARAN || prev.type == TokenType::STRING)
+		if (prev.type == TokenType::IDENTIFIER || prev.type == TokenType::NUMBER || prev.type == TokenType::RIGHT_PARAN || prev.type == TokenType::STRING || prev.type == TokenType::TRUE || prev.type == TokenType::FALSE)
 			return makeToken(TokenType::MINUS);
 		return makeToken(TokenType::NEGATE);
 	case '=':

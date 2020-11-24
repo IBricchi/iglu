@@ -33,11 +33,11 @@ void Parser::statement() {
 	psm.reset();
 	current = scanner->scanToken();
 	while (true) {
-		// check for error using Parser State Machine
-		if (!psm.next(current)) {
-			if (psm.is_panic()) panicError("!TODO replace with new panic Error function");
-			else continue;
-		}
+		//// check for error using Parser State Machine
+		//if (!psm.next(current)) {
+		//	if (psm.is_panic()) panicError("!TODO replace with new panic Error function");
+		//	else continue;
+		//}
 		switch (current.type)
 		{
 			case TokenType::LET:
@@ -103,9 +103,10 @@ void Parser::statement() {
 
 void Parser::expression(TokenType delimiter) {
 	vector<Token> opp = vector<Token>();
+	psm.reset();
 
 	for (; current.type != delimiter; current = scanner->scanToken()) {
-		if (!psm.next(current)) {
+		if (!psm.next(current.type)) {
 			if (psm.is_panic()) panicError("");
 			else continue;
 		}
@@ -290,16 +291,229 @@ void Parser::expression(TokenType delimiter) {
 
 // parser statemachine
 
-bool PSM::next(Token token) {
-	return true;
+PSM::PSM() {
+	reset();
+}
+
+bool PSM::next(TokenType type) {
+	vector<pair<TokenType,State>> validTypes;
+	string errorMessage;
+	switch (state)
+	{
+	case State::START:
+		validTypes = {
+			{delimiter, State::STOP},
+
+			{TokenType::LEFT_PARAN, State::LEFT_PARAN},
+
+			{TokenType::NEGATE, State::UNARY},
+			{TokenType::BANG, State::UNARY},
+
+			{TokenType::STRING, State::CONST},
+			{TokenType::TRUE, State::CONST},
+			{TokenType::FALSE, State::CONST},
+			{TokenType::NUMBER, State::CONST},
+			{TokenType::NILL, State::CONST},
+
+			{TokenType::IDENTIFIER, State::IDENT}
+		};
+		break;
+	case State::STOP:
+		break;
+	case State::LEFT_PARAN:
+		validTypes = {
+			{TokenType::LEFT_PARAN, State::LEFT_PARAN},
+
+			{TokenType::NEGATE, State::UNARY},
+			{TokenType::BANG, State::UNARY},
+
+			{TokenType::STRING, State::CONST},
+			{TokenType::TRUE, State::CONST},
+			{TokenType::FALSE, State::CONST},
+			{TokenType::NUMBER, State::CONST},
+			{TokenType::NILL, State::CONST},
+
+			{TokenType::IDENTIFIER, State::IDENT}
+		};
+		break;
+	case State::RIGHT_PARAN:
+		validTypes = {
+			{delimiter, State::STOP},
+
+			{TokenType::RIGHT_PARAN, State::RIGHT_PARAN},
+
+			{TokenType::PLUS, State::OPERATOR},
+			{TokenType::MINUS, State::OPERATOR},
+			{TokenType::STAR, State::OPERATOR},
+			{TokenType::SLASH, State::OPERATOR},
+			{TokenType::EQUAL_EQUAL, State::OPERATOR},
+			{TokenType::BANG_EQUAL, State::OPERATOR},
+			{TokenType::LESS, State::OPERATOR},
+			{TokenType::LESS_EQUAL, State::OPERATOR},
+			{TokenType::GREATER, State::OPERATOR},
+			{TokenType::GREATER_EQUAL, State::OPERATOR},
+
+			{TokenType::LEFT_PARAN, State::FN_CALL},
+		};
+		break;
+	case State::CONST:
+		validTypes = {
+			{delimiter, State::STOP},
+			
+			{TokenType::RIGHT_PARAN, State::RIGHT_PARAN},
+
+			{TokenType::PLUS, State::OPERATOR},
+			{TokenType::MINUS, State::OPERATOR},
+			{TokenType::STAR, State::OPERATOR},
+			{TokenType::SLASH, State::OPERATOR},
+			{TokenType::EQUAL_EQUAL, State::OPERATOR},
+			{TokenType::BANG_EQUAL, State::OPERATOR},
+			{TokenType::LESS, State::OPERATOR},
+			{TokenType::LESS_EQUAL, State::OPERATOR},
+			{TokenType::GREATER, State::OPERATOR},
+			{TokenType::GREATER_EQUAL, State::OPERATOR},
+		};
+		break;
+	case State::UNARY:
+		validTypes = {
+			{TokenType::RIGHT_PARAN, State::RIGHT_PARAN},
+
+			{TokenType::PLUS, State::OPERATOR},
+			{TokenType::MINUS, State::OPERATOR},
+			{TokenType::STAR, State::OPERATOR},
+			{TokenType::SLASH, State::OPERATOR},
+			{TokenType::EQUAL_EQUAL, State::OPERATOR},
+			{TokenType::BANG_EQUAL, State::OPERATOR},
+			{TokenType::LESS, State::OPERATOR},
+			{TokenType::LESS_EQUAL, State::OPERATOR},
+			{TokenType::GREATER, State::OPERATOR},
+			{TokenType::GREATER_EQUAL, State::OPERATOR},
+
+			{TokenType::NEGATE, State::UNARY},
+			{TokenType::BANG, State::UNARY},
+		};
+		break;
+	case State::IDENT:
+		validTypes = {
+			{delimiter, State::STOP},
+			
+			{TokenType::RIGHT_PARAN, State::RIGHT_PARAN},
+
+			{TokenType::PLUS, State::OPERATOR},
+			{TokenType::MINUS, State::OPERATOR},
+			{TokenType::STAR, State::OPERATOR},
+			{TokenType::SLASH, State::OPERATOR},
+			{TokenType::EQUAL_EQUAL, State::OPERATOR},
+			{TokenType::BANG_EQUAL, State::OPERATOR},
+			{TokenType::LESS, State::OPERATOR},
+			{TokenType::LESS_EQUAL, State::OPERATOR},
+			{TokenType::GREATER, State::OPERATOR},
+			{TokenType::GREATER_EQUAL, State::OPERATOR},
+			{TokenType::DOT, State::OPERATOR}, //!TODO create specific state for the DOT
+
+			{TokenType::LEFT_PARAN, State::FN_CALL},
+		};
+		break;
+	case State::OPERATOR:
+		validTypes = {
+			{TokenType::STRING, State::CONST},
+			{TokenType::TRUE, State::CONST},
+			{TokenType::FALSE, State::CONST},
+			{TokenType::NUMBER, State::CONST},
+			{TokenType::NILL, State::CONST},
+
+			{TokenType::IDENTIFIER, State::IDENT}
+		};
+		break;
+	case State::FN_CALL:
+		validTypes = {
+			{TokenType::STRING, State::PARAM},
+			{TokenType::TRUE, State::PARAM},
+			{TokenType::FALSE, State::PARAM},
+			{TokenType::NUMBER, State::PARAM},
+			{TokenType::NILL, State::PARAM},
+			{TokenType::IDENTIFIER, State::PARAM},
+		};
+		break;
+	case State::END_FN_CALL:
+		validTypes = {
+			{delimiter, State::STOP},
+
+			{TokenType::RIGHT_PARAN, State::RIGHT_PARAN},
+
+			{TokenType::PLUS, State::OPERATOR},
+			{TokenType::MINUS, State::OPERATOR},
+			{TokenType::STAR, State::OPERATOR},
+			{TokenType::SLASH, State::OPERATOR},
+			{TokenType::EQUAL_EQUAL, State::OPERATOR},
+			{TokenType::BANG_EQUAL, State::OPERATOR},
+			{TokenType::LESS, State::OPERATOR},
+			{TokenType::LESS_EQUAL, State::OPERATOR},
+			{TokenType::GREATER, State::OPERATOR},
+			{TokenType::GREATER_EQUAL, State::OPERATOR},
+			{TokenType::DOT, State::OPERATOR}, //!TODO create specific state for the DOT
+		};
+		break;
+	case State::PARAM:
+		validTypes = {
+			{TokenType::COMMA, State::PARAM_COMMA},
+			
+			{TokenType::RIGHT_PARAN, State::END_FN_CALL},
+		};
+		break;
+	case State::PARAM_COMMA: // !TODO think about merging this with the FN_CALL state "could be more efficient"
+		validTypes = {
+			{TokenType::STRING, State::PARAM},
+			{TokenType::TRUE, State::PARAM},
+			{TokenType::FALSE, State::PARAM},
+			{TokenType::NUMBER, State::PARAM},
+			{TokenType::NILL, State::PARAM},
+			{TokenType::IDENTIFIER, State::PARAM},
+		};
+		break;
+	case State::ERROR:
+		// !TODO remove
+		cout << "Entered Error State Parser";
+		break;
+	case State::PANIC_ERROR:
+		break;
+	default:
+		break;
+	}
+
+	for (auto it = validTypes.begin(); it < validTypes.end();){
+		if(it->first == type){
+			state = it->second;
+			break;
+		}
+		it++;
+		if (it == validTypes.end()) {
+			state = State::ERROR;
+		}
+	}
+
+	return state!=State::ERROR&&state!=State::PANIC_ERROR;
 }
 
 bool PSM::is_panic() {
-	return state==State::PANIC;
+	return state == State::PANIC_ERROR;
+}
+
+void PSM::setAsAssignment() {
+	exprType = ExprType::ASSIGN;
+}
+
+void PSM::change_delimiter(TokenType type) {
+	delimiter = type;
 }
 
 void PSM::reset() {
-	state = State::BEGIN;
+	delimiter = TokenType::SEMICOLON;
+	exprType = ExprType::DEF;
+
+	state = State::START;
+
+	errorMessage = "";
 }
 
 // Errors
